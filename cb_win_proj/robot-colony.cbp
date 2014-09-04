@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="space-sim" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="debug">
+				<Option platforms="Windows;" />
+				<Option output="../target/debug/space-sim" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../target/debug/" />
+				<Option object_output="../obj/debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add directory="../src/debugModeIncl" />
+				</Compiler>
+				<ExtraCommands>
+					<Add after='cmd /c xcopy /e /y &quot;$(PROJECT_DIR)..\assets\*&quot; &quot;$(PROJECT_DIR)..\target\debug\&quot;' />
+					<Add after='cmd /c xcopy /y &quot;$(PROJECT_DIR)..\SDL2\SDL2.dll&quot; &quot;$(PROJECT_DIR)..\target\debug\&quot;' />
+					<Add after='cmd /c xcopy /y &quot;$(PROJECT_DIR)..\SDL2\SDL2_image.dll&quot; &quot;$(PROJECT_DIR)..\target\debug\&quot;' />
+					<Add after='cmd /c xcopy /y &quot;$(PROJECT_DIR)..\SDL2\libpng16-16.dll&quot; &quot;$(PROJECT_DIR)..\target\debug\&quot;' />
+					<Add after='cmd /c xcopy /y &quot;$(PROJECT_DIR)..\SDL2\zlib1.dll&quot; &quot;$(PROJECT_DIR)..\target\debug\&quot;' />
+					<Add after='cmd /c xcopy /y &quot;$(PROJECT_DIR)..\lua\lua52.dll&quot; &quot;$(PROJECT_DIR)..\target\debug\&quot;' />
+					<Mode after="always" />
+				</ExtraCommands>
+			</Target>
+			<Target title="release">
+				<Option platforms="Windows;" />
+				<Option output="../target/release/space-sim" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../release/debug/" />
+				<Option object_output="../obj/drelease/" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add directory="../src/releaseModeIncl" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+				<ExtraCommands>
+					<Add after='cmd /c xcopy /e /y &quot;$(PROJECT_DIR)..\assets\*&quot; &quot;$(PROJECT_DIR)..\target\release\&quot;' />
+					<Add after='cmd /c xcopy /y &quot;$(PROJECT_DIR)..\SDL2\SDL2.dll&quot; &quot;$(PROJECT_DIR)..\target\release\&quot;' />
+					<Add after='cmd /c xcopy /y &quot;$(PROJECT_DIR)..\SDL2\SDL2_image.dll&quot; &quot;$(PROJECT_DIR)..\target\release\&quot;' />
+					<Add after='cmd /c xcopy /y &quot;$(PROJECT_DIR)..\SDL2\libpng16-16.dll&quot; &quot;$(PROJECT_DIR)..\target\release\&quot;' />
+					<Add after='cmd /c xcopy /y &quot;$(PROJECT_DIR)..\SDL2\zlib1.dll&quot; &quot;$(PROJECT_DIR)..\target\release\&quot;' />
+					<Add after='cmd /c xcopy /y &quot;$(PROJECT_DIR)..\lua\lua52.dll&quot; &quot;$(PROJECT_DIR)..\target\release\&quot;' />
+					<Mode after="always" />
+				</ExtraCommands>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wshadow" />
+			<Add option="-Winit-self" />
+			<Add option="-Wredundant-decls" />
+			<Add option="-Wcast-align" />
+			<Add option="-Wundef" />
+			<Add option="-Wfloat-equal" />
+			<Add option="-Winline" />
+			<Add option="-Wunreachable-code" />
+			<Add option="-Wmissing-declarations" />
+			<Add option="-Wmissing-include-dirs" />
+			<Add option="-Wswitch-enum" />
+			<Add option="-Weffc++" />
+			<Add option="-Wzero-as-null-pointer-constant" />
+			<Add option="-std=c++11" />
+			<Add option="-Wfatal-errors" />
+			<Add option="-Wextra" />
+			<Add option="-Wall" />
+			<Add option="-Wno-long-long" />
+			<Add directory="../SDL2/include" />
+			<Add directory="../lua" />
+		</Compiler>
+		<Linker>
+			<Add option="-lmingw32 -lSDL2main -lSDL2 -lSDL2_image -llua52" />
+			<Add directory="../SDL2/lib" />
+			<Add directory="../lua" />
+		</Linker>
+		<Unit filename="../src/MersenneTwister.h" />
+		<Unit filename="../src/cmnData.h" />
+		<Unit filename="../src/cmnTypes.cpp" />
+		<Unit filename="../src/cmnTypes.h" />
+		<Unit filename="../src/colors.h" />
+		<Unit filename="../src/init.cpp" />
+		<Unit filename="../src/init.h" />
+		<Unit filename="../src/input.cpp" />
+		<Unit filename="../src/input.h" />
+		<Unit filename="../src/main.cpp" />
+		<Unit filename="../src/rendering.cpp" />
+		<Unit filename="../src/rendering.h" />
+		<Unit filename="../src/sdlHandling.cpp" />
+		<Unit filename="../src/sdlHandling.h" />
+		<Unit filename="../src/time.cpp" />
+		<Unit filename="../src/time.h" />
+		<Unit filename="../src/utils.cpp" />
+		<Unit filename="../src/utils.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

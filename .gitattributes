@@ -1,0 +1,3 @@
+cb_project/* -text -diff
+cb_project.depend -text -diff
+cb_project.cbp -text -diff
