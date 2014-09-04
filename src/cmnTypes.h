@@ -8,49 +8,40 @@
 #include "CmnData.h"
 #include "colors.h"
 
-class Pos2 {
+class P {
 public:
-  Pos2() : x(0), y(0) {}
-  Pos2(const int x_, const int y_) : x(x_), y(y_) {}
-  Pos2(const Pos2& p) : x(p.x), y(p.y) {}
+  P() : x(0), y(0) {}
+  P(const int x_, const int y_) : x(x_), y(y_) {}
+  P(const P& p) : x(p.x), y(p.y) {}
 
-  Pos2& operator*=(const int V)     {x *= V; y *= V;      return *this;}
-  Pos2& operator/=(const int V)     {x /= V; y /= V;      return *this;}
-  Pos2& operator+=(const Pos2& o)   {x += o.x; y += o.y;  return *this;}
-  Pos2& operator-=(const Pos2& o)   {x -= o.x; y -= o.y;  return *this;}
+  P& operator*=(const int V)  {x *= V; y *= V;      return *this;}
+  P& operator/=(const int V)  {x /= V; y /= V;      return *this;}
+  P& operator+=(const P& o)   {x += o.x; y += o.y;  return *this;}
+  P& operator-=(const P& o)   {x -= o.x; y -= o.y;  return *this;}
 
-  Pos2 operator+(const Pos2& p)     const {return Pos2(x + p.x, y + p.y);}
-  Pos2 operator+(const int V)       const {return Pos2(x + V, y + V);}
-  Pos2 operator-(const Pos2& p)     const {return Pos2(x - p.x, y - p.y);}
-  Pos2 operator-(const int V)       const {return Pos2(x - V, y - V);}
-  Pos2 operator/(const int V)       const {return Pos2(x / V, y / V);}
-  Pos2 operator*(const int V)       const {return Pos2(x * V, y * V);}
-  Pos2 operator*(const Pos2& p)     const {return Pos2(x * p.x, y * p.y);}
-  bool operator==(const Pos2& p)    const {return x == p.x && y == p.y;}
-  bool operator!=(const Pos2& p)    const {return x != p.x || y != p.y;}
-  bool operator<=(const Pos2& p)    const {return x <= p.x && y <= p.y;}
-  bool operator>=(const Pos2& p)    const {return x >= p.x && y >= p.y;}
+  P operator+(const P& p)     const {return P(x + p.x, y + p.y);}
+  P operator+(const int V)    const {return P(x + V, y + V);}
+  P operator-(const P& p)     const {return P(x - p.x, y - p.y);}
+  P operator-(const int V)    const {return P(x - V, y - V);}
+  P operator/(const int V)    const {return P(x / V, y / V);}
+  P operator*(const int V)    const {return P(x * V, y * V);}
+  P operator*(const P& p)     const {return P(x * p.x, y * p.y);}
+  bool operator==(const P& p) const {return x == p.x && y == p.y;}
+  bool operator!=(const P& p) const {return x != p.x || y != p.y;}
+  bool operator<=(const P& p) const {return x <= p.x && y <= p.y;}
+  bool operator>=(const P& p) const {return x >= p.x && y >= p.y;}
 
-  Pos2 getSigns() const {
-    return Pos2(x == 0 ? 0 : x > 0 ? 1 : -1,
-                y == 0 ? 0 : y > 0 ? 1 : -1);
+  P getSigns() const {
+    return P(x == 0 ? 0 : x > 0 ? 1 : -1,
+             y == 0 ? 0 : y > 0 ? 1 : -1);
   }
 
   void set(const int x_, const int y_)  {x = x_; y = y_;}
-  void set(const Pos2& p)                {x = p.x; y = p.y;}
+  void set(const P& p)                {x = p.x; y = p.y;}
 
-  void swap(Pos2& p) {Pos2 pTemp(p); p.set(*this); set(pTemp);}
+  void swap(P& p) {P pTemp(p); p.set(*this); set(pTemp);}
 
   int x, y;
-};
-
-class Pos3 {
-public:
-  Pos3() : x(0), y(0), z(0) {}
-  Pos3(const double X, const double Y, const double Z) : x(X), y(Y), z(Z) {}
-  Pos3(const Pos3& p) : x(p.x), y(p.y), z(p.z) {}
-
-  double x, y, z;
 };
 
 struct StrAndClr {

@@ -8,15 +8,14 @@ using namespace std;
 
 namespace Utils {
 
-bool isInRange(const Pos2& p0, const Pos2& p1, const int RANGE) {
+bool isInRange(const P& p0, const P& p1, const int RANGE) {
   const float DX        = p1.x - p0.x;
   const float DY        = p1.y - p0.y;
   const float LINE_LEN  = sqrt((DX * DX) + (DY * DY));
   return int(LINE_LEN) <= RANGE;
 }
 
-void getPointOnLine(const Pos2& p0, const Pos2& p1, const float DIST,
-                    Pos2& pRef) {
+void getPointOnLine(const P& p0, const P& p1, const float DIST, P& pRef) {
   if(DIST < 0) {pRef = p0; return;}
 
   const float DX = p1.x - p0.x;
@@ -30,7 +29,7 @@ void getPointOnLine(const Pos2& p0, const Pos2& p1, const float DIST,
            int((float(p0.y) + (DY / LINE_LEN) * DIST)));
 }
 
-bool isInArea(const Pos2& p, const Pos2& areaP0, const Pos2& areaP1) {
+bool isInArea(const P& p, const P& areaP0, const P& areaP1) {
   return(p >= areaP0 && p <= areaP1);
 }
 
@@ -106,7 +105,7 @@ const float edge[4] = {
 
 } //namespace
 
-Dir getDir(const Pos2& offset) {
+Dir getDir(const P& offset) {
   assert(offset.x >= -1 && offset.y >= -1 && offset.x <= 1 && offset.y <= 1);
 
   if(offset.y == -1) {
@@ -131,33 +130,33 @@ Dir getDir(const Pos2& offset) {
   return Dir::endOfDirs;
 }
 
-void getOffset(const Dir dir, Pos2& offsetRef) {
+void getOffset(const Dir dir, P& offsetRef) {
   assert(dir != Dir::endOfDirs);
 
   switch(dir) {
-    case Dir::downLeft:   offsetRef = Pos2(-1, 1);   break;
-    case Dir::down:       offsetRef = Pos2(0, 1);    break;
-    case Dir::downRight:  offsetRef = Pos2(1, 1);    break;
-    case Dir::left:       offsetRef = Pos2(-1, 0);   break;
-    case Dir::center:     offsetRef = Pos2(0, 0);    break;
-    case Dir::right:      offsetRef = Pos2(1, 0);    break;
-    case Dir::upLeft:     offsetRef = Pos2(-1, -1);  break;
-    case Dir::up:         offsetRef = Pos2(0, -1);   break;
-    case Dir::upRight:    offsetRef = Pos2(1, -1);   break;
-    case Dir::endOfDirs:  offsetRef = Pos2(0, 0);    break;
+    case Dir::downLeft:   offsetRef = P(-1, 1);   break;
+    case Dir::down:       offsetRef = P(0, 1);    break;
+    case Dir::downRight:  offsetRef = P(1, 1);    break;
+    case Dir::left:       offsetRef = P(-1, 0);   break;
+    case Dir::center:     offsetRef = P(0, 0);    break;
+    case Dir::right:      offsetRef = P(1, 0);    break;
+    case Dir::upLeft:     offsetRef = P(-1, -1);  break;
+    case Dir::up:         offsetRef = P(0, -1);   break;
+    case Dir::upRight:    offsetRef = P(1, -1);   break;
+    case Dir::endOfDirs:  offsetRef = P(0, 0);    break;
   }
 }
 
-void getAdjPos(const Dir dir, const Pos2& pos, Pos2& adjPosRef) {
-  Pos2 offset;
+void getAdjPos(const Dir dir, const P& pos, P& adjPosRef) {
+  P offset;
   getOffset(dir, offset);
   adjPosRef = pos + offset;
 }
 
-Dir getDir(const Pos2& p0, const Pos2& p1) {
+Dir getDir(const P& p0, const P& p1) {
   if(p0 == p1) {return Dir::center;}
 
-  const Pos2  offset(p1 - p0);
+  const P  offset(p1 - p0);
   const float ANGLE_DB = atan2(-offset.y, offset.x);
 
   if(ANGLE_DB        <  -edge[2] && ANGLE_DB >  -edge[3]) {

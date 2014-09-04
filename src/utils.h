@@ -7,15 +7,14 @@
 
 namespace Utils {
 
-bool isInRange(const Pos2& p0, const Pos2& p1, const int RANGE);
+bool isInRange(const P& p0, const P& p1, const int RANGE);
 
 //Note: This function is guaranteed to only return points on the line.
 //* Returns p0 if DIST is negative.
 //* Returns p1 if DIST is beyond p1
-void getPointOnLine(const Pos2& p0, const Pos2& p1, const float DIST,
-                    Pos2& pRef);
+void getPointOnLine(const P& p0, const P& p1, const float DIST, P& pRef);
 
-bool isInArea(const Pos2& p, const Pos2& areaP0, const Pos2& areaP1);
+bool isInArea(const P& p, const P& areaP0, const P& areaP1);
 
 } //Utils
 
@@ -47,13 +46,13 @@ int percentile();
 
 namespace DirUtils {
 
-Dir getDir(const Pos2& offset);
+Dir getDir(const P& offset);
 
-Dir getDir(const Pos2& p0, const Pos2& p1);
+Dir getDir(const P& p0, const P& p1);
 
-void getOffset(const Dir dir, Pos2& offsetRef);
+void getOffset(const Dir dir, P& offsetRef);
 
-void getAdjPos(const Dir dir, const Pos2& pos, Pos2& adjPosRef);
+void getAdjPos(const Dir dir, const P& pos, P& adjPosRef);
 
 } //DirUtils
 
