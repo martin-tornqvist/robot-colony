@@ -65,6 +65,27 @@ struct Rect {
   P p1;
 };
 
+struct GlyphAndClr {
+  GlyphAndClr() : glyph(0), clr(clrBlack), clrBg(clrBlack) {}
+
+  GlyphAndClr(char glyph_, const Clr& clr_) :
+    glyph(glyph_), clr(clr_), clrBg(clrBlack) {}
+
+  GlyphAndClr(char glyph_, const Clr& clr_, const Clr& clrBg_) :
+    glyph(glyph_), clr(clr_), clrBg(clrBg_) {}
+
+  GlyphAndClr& operator=(const GlyphAndClr& other) {
+    glyph = other.glyph;
+    clr   = other.clr;
+    clrBg = other.clrBg;
+    return *this;
+  }
+
+  char glyph;
+  Clr clr;
+  Clr clrBg;
+};
+
 struct StrAndClr {
   StrAndClr() : str(""), clr(clrBlack) {}
 

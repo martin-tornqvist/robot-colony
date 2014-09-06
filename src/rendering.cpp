@@ -21,7 +21,7 @@ SDL_Window*   sdlWindow_      = nullptr;
 SDL_Renderer* sdlRenderer_    = nullptr;
 //SDL_Texture*  sdlTexture_     = nullptr;
 
-bool fontPxData_[177][137];
+bool fontPxData_[258][176];
 
 bool isInited() {
   return sdlWindow_ != nullptr;
@@ -66,7 +66,7 @@ void putPx(const P& pxPos) {
 void loadFontData() {
   TRACE_FUNC_BEGIN;
 
-  SDL_Surface* fontSurfaceTmp = IMG_Load("11x19.png");
+  SDL_Surface* fontSurfaceTmp = IMG_Load("12x24.png"); //IMG_Load("11x19.png");
 
   Uint32 bgClr = SDL_MapRGB(fontSurfaceTmp->format, 0, 0, 0);
 
@@ -220,6 +220,16 @@ void drawGlyphAtPx(const char GLYPH, const P& pxPos, const Clr& clr,
   putPxsOnScreenForGlyph(GLYPH, pxPos, clr);
 }
 
+void drawGlyphInMap(const char GLYPH, const P& p, const Clr& clr, const Clr& bgClr) {
+  if(isInited()) {
+    if(p.x < 0 || p.y < 0 || p.x >= MAP_W || p.y >= MAP_H) {return;}
+
+    const P pxPos(p.x * CELL_PX_W, p.y * CELL_PX_H);
+
+    drawGlyphAtPx(GLYPH, pxPos, clr, true, bgClr);
+  }
+}
+
 } //Namespace
 
 void init() {
@@ -270,9 +280,10 @@ void drawText(const string& str, const P& p, const Clr& clr, const Clr& bgClr) {
     if(p.y < 0 || p.y >= SCR_H) {return;}
 
     const int LEN = str.size();
-    drawRect(p, P(LEN, 1), bgClr, RectType::filled);
 
     P pxPos(p.x * CELL_PX_W, p.y * CELL_PX_H);
+
+    drawRect(pxPos, P(LEN * CELL_PX_W, CELL_PX_H), bgClr, RectType::filled);
 
     for(const char GLYPH : str) {
       if(pxPos.x < 0 || pxPos.x >= SCR_PX_H) {return;}
@@ -282,24 +293,9 @@ void drawText(const string& str, const P& p, const Clr& clr, const Clr& bgClr) {
   }
 }
 
-void drawGlypInMap(const char GLYPH, const P& p, const Clr& clr) {
-  if(isInited()) {
-    if(p.x < 0 || p.y < 0 || p.y >= MAP_W || p.y >= MAP_H) {return;}
-
-//    drawRect(p, P(1, 1), bgClr, RectType::filled);
-
-    const P pxPos(p.x * CELL_PX_W, p.y * CELL_PX_H);
-
-    drawGlyphAtPx(GLYPH, pxPos, clr, false);
-  }
-}
-
 void drawRect(const P& p, const P& d, const Clr& clr, const RectType rectType) {
   if(isInited()) {
-    const P pxPos0(p.x * CELL_PX_W, p.y * CELL_PX_H);
-    const P pxD(d.x * CELL_PX_W, d.y * CELL_PX_H);
-    const SDL_Rect sdlRect =
-    {(Sint16)pxPos0.x, (Sint16)pxPos0.y, (Uint16)pxD.x, (Uint16)pxD.y};
+    const SDL_Rect sdlRect = {(Sint16)p.x, (Sint16)p.y, (Uint16)d.x, (Uint16)d.y};
     setRenderClr(clr);
     if(rectType == RectType::filled) {
       SDL_RenderFillRect(sdlRenderer_, &sdlRect);
@@ -326,7 +322,18 @@ void clearScreen() {
 }
 
 void drawMap() {
-  for(const Mob* const mob : World::mobs) {mob->draw();}
+  for(int y = 0; y < MAP_H; ++y) {
+    for(int x = 0; x < MAP_W; ++x) {
+      const Ground* ground = World::ground[x][y];
+      const auto drawInf = ground->getGlyphAndClr();
+      drawGlyphInMap(drawInf.glyph, P(x, y), drawInf.clr, drawInf.clrBg);
+    }
+  }
+
+  for(const Mob* const mob : World::mobs) {
+    const auto drawInf = mob->getGlyphAndClr();
+    drawGlyphInMap(drawInf.glyph, mob->getPos(), drawInf.clr, drawInf.clrBg);
+  }
 }
 
 } //Rendering

@@ -1,7 +1,6 @@
 #include "init.h"
 
 #include <iostream>
-#include <chrono>
 #include <string>
 
 #include "input.h"
@@ -12,6 +11,7 @@
 #include "sdlHandling.h"
 #include "time.h"
 #include "world.h"
+#include "ent.h"
 
 extern "C" {
 #include "lua.h"
@@ -21,10 +21,29 @@ extern "C" {
 
 using namespace std;
 
+//----------------------------------------------- C++ functions called from Lua
 static int moveTo(lua_State* L) {
   const P p(lua_tointeger(L, 1), lua_tointeger(L, 2));
   World::mobs[0]->tryStepTowards(p);
   return 0;
+}
+
+static int getRbtPos(lua_State* L) {
+  const P p(World::mobs[0]->getPos());
+  lua_pushnumber(L, p.x);
+  lua_pushnumber(L, p.y);
+  return 2;
+}
+
+//----------------------------------------------- Lua functions called from C++
+static void luaAct(lua_State* L) {
+  lua_getglobal(L, "act");
+  lua_call(L, 0, 0);
+}
+
+static void luaInf(lua_State* L) {
+  lua_getglobal(L, "displayInfo");
+  lua_call(L, 0, 1);
 }
 
 #ifdef _WIN32
@@ -47,8 +66,13 @@ int main(int argc, char* argv[]) {
   L = luaL_newstate();  //initialize Lua
   luaL_openlibs(L);     //Load Lua base libraries
 
-  const Uint32 MS_PER_TICK = 100;
+  const Uint32 MS_PER_TICK = 220;
   Uint32 msLast = 0;
+
+  lua_register(L, "moveTo",     moveTo);
+  lua_register(L, "getRbtPos",  getRbtPos);
+
+  luaL_dofile(L, "../../script/rbt.lua"); //Run the script
 
   bool quit = false;
   while(quit == false) {
@@ -60,11 +84,17 @@ int main(int argc, char* argv[]) {
 
       Rendering::clearScreen();
 
-      lua_register(L, "moveTo", moveTo);      //Register function
-      luaL_dofile(L, "../../script/rbt.lua"); //Run the script
+      luaAct(L);
 
       Time::tick();
       Rendering::drawMap();
+
+      luaInf(L);
+      const string str = lua_tostring(L, -1);
+      lua_pop(L, 1);
+      if(!str.empty()) {
+        Rendering::drawText(str, P(0, 0), clrBlack, clrGray);
+      }
     }
     Rendering::renderPresent();
 
