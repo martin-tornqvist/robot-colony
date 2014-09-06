@@ -19,7 +19,7 @@ const int MAP_H_HALF  = MAP_H / 2;
 
 //-----------------------------------------------------------------------------
 //TODO Move to Config, make non-const:
-const int CELL_PX_W   = 12;
+const int CELL_PX_W   = 16;
 const int CELL_PX_H   = 24;
 const int SCR_PX_W    = SCR_W * CELL_PX_W;
 const int SCR_PX_H    = SCR_H * CELL_PX_H;

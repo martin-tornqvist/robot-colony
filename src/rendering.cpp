@@ -66,7 +66,7 @@ void putPx(const P& pxPos) {
 void loadFontData() {
   TRACE_FUNC_BEGIN;
 
-  SDL_Surface* fontSurfaceTmp = IMG_Load("12x24.png"); //IMG_Load("11x19.png");
+  SDL_Surface* fontSurfaceTmp = IMG_Load("16x24.png"); //IMG_Load("11x19.png");
 
   Uint32 bgClr = SDL_MapRGB(fontSurfaceTmp->format, 0, 0, 0);
 
@@ -324,8 +324,8 @@ void clearScreen() {
 void drawMap() {
   for(int y = 0; y < MAP_H; ++y) {
     for(int x = 0; x < MAP_W; ++x) {
-      const Ground* ground = World::ground[x][y];
-      const auto drawInf = ground->getGlyphAndClr();
+      const auto* rigid = World::rigids[x][y];
+      const auto drawInf = rigid->getGlyphAndClr();
       drawGlyphInMap(drawInf.glyph, P(x, y), drawInf.clr, drawInf.clrBg);
     }
   }

@@ -21,20 +21,24 @@ public:
   virtual bool isBlocking() = 0;
 };
 
-class Ground : public Ent {
+class RockGround : public Rigid {
 public:
-  Ground() : Ent() {}
-
-  virtual ~Ground() {}
-};
-
-class RockGround : public Ground {
-public:
-  RockGround() : Ground() {}
+  RockGround() : Rigid() {}
 
   ~RockGround() {}
 
   bool isBlocking() {return false;}
+
+  GlyphAndClr getGlyphAndClr() const override;
+};
+
+class RockWall : public Rigid {
+public:
+  RockWall() : Rigid() {}
+
+  ~RockWall() {}
+
+  bool isBlocking() {return true;}
 
   GlyphAndClr getGlyphAndClr() const override;
 };

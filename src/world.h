@@ -6,17 +6,20 @@
 #include "cmnData.h"
 
 class Mob;
-class Ground;
+class Rigid;
+struct P;
 
 namespace World {
 
 extern std::vector<Mob*> mobs;
 
-extern Ground* ground[MAP_W][MAP_H];
+extern Rigid* rigids[MAP_W][MAP_H];
 
 void init();
 
 void cleanup();
+
+void replaceRigid(Rigid* const newRigid, const P& p);
 
 }
 

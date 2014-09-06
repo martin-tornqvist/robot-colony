@@ -63,6 +63,10 @@ int main(int argc, char* argv[]) {
 
   World::mobs.push_back(new Rbt(P(MAP_W_HALF - 1, MAP_H_HALF - 1)));
 
+  World::replaceRigid(new RockWall(), P(10, 10));
+  World::replaceRigid(new RockWall(), P(10, 11));
+  World::replaceRigid(new RockWall(), P(11, 10));
+
   L = luaL_newstate();  //initialize Lua
   luaL_openlibs(L);     //Load Lua base libraries
 
