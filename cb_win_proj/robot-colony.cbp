@@ -80,7 +80,6 @@
 		</Linker>
 		<Unit filename="../src/MersenneTwister.h" />
 		<Unit filename="../src/cmnData.h" />
-		<Unit filename="../src/cmnTypes.cpp" />
 		<Unit filename="../src/cmnTypes.h" />
 		<Unit filename="../src/colors.h" />
 		<Unit filename="../src/ent.cpp" />
@@ -90,8 +89,8 @@
 		<Unit filename="../src/input.cpp" />
 		<Unit filename="../src/input.h" />
 		<Unit filename="../src/main.cpp" />
-		<Unit filename="../src/map.cpp" />
-		<Unit filename="../src/map.h" />
+		<Unit filename="../src/mapParsing.cpp" />
+		<Unit filename="../src/mapParsing.h" />
 		<Unit filename="../src/rendering.cpp" />
 		<Unit filename="../src/rendering.h" />
 		<Unit filename="../src/sdlHandling.cpp" />
@@ -100,6 +99,8 @@
 		<Unit filename="../src/time.h" />
 		<Unit filename="../src/utils.cpp" />
 		<Unit filename="../src/utils.h" />
+		<Unit filename="../src/world.cpp" />
+		<Unit filename="../src/world.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

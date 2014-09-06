@@ -8,6 +8,8 @@
 
 #include "Init.h"
 #include "cmnData.h"
+#include "ent.h"
+#include "world.h"
 
 using namespace std;
 
@@ -280,6 +282,18 @@ void drawText(const string& str, const P& p, const Clr& clr, const Clr& bgClr) {
   }
 }
 
+void drawGlypInMap(const char GLYPH, const P& p, const Clr& clr) {
+  if(isInited()) {
+    if(p.x < 0 || p.y < 0 || p.y >= MAP_W || p.y >= MAP_H) {return;}
+
+//    drawRect(p, P(1, 1), bgClr, RectType::filled);
+
+    const P pxPos(p.x * CELL_PX_W, p.y * CELL_PX_H);
+
+    drawGlyphAtPx(GLYPH, pxPos, clr, false);
+  }
+}
+
 void drawRect(const P& p, const P& d, const Clr& clr, const RectType rectType) {
   if(isInited()) {
     const P pxPos0(p.x * CELL_PX_W, p.y * CELL_PX_H);
@@ -309,6 +323,10 @@ void clearScreen() {
     setRenderClr(clrBlack);
     SDL_RenderClear(sdlRenderer_);
   }
+}
+
+void drawMap() {
+  for(const Mob* const mob : World::mobs) {mob->draw();}
 }
 
 } //Rendering

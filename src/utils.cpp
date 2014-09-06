@@ -33,6 +33,81 @@ bool isInArea(const P& p, const P& areaP0, const P& areaP1) {
   return(p >= areaP0 && p <= areaP1);
 }
 
+void resetArray(int a[MAP_W][MAP_H]) {
+  for(int y = 0; y < MAP_H; ++y) {
+    for(int x = 0; x < MAP_W; ++x) {
+      a[x][y] = 0;
+    }
+  }
+}
+
+void resetArray(bool a[MAP_W][MAP_H], const bool VAL) {
+  for(int y = 0; y < MAP_H; ++y) {
+    for(int x = 0; x < MAP_W; ++x) {
+      a[x][y] = VAL;
+    }
+  }
+}
+
+void reverseBoolArray(bool a[MAP_W][MAP_H]) {
+  for(int y = 0; y < MAP_H; ++y) {
+    for(int x = 0; x < MAP_W; ++x) {
+      a[x][y] = !a[x][y];
+    }
+  }
+}
+
+bool isPosInMap(const P& pos, const bool COUNT_EDGE_AS_INSIDE) {
+  if(COUNT_EDGE_AS_INSIDE) {
+    return pos.x >= 0 && pos.y >= 0 && pos.x < MAP_W && pos.y < MAP_H;
+  } else {
+    return pos.x > 0 && pos.y > 0 && pos.x < MAP_W - 1 && pos.y < MAP_H - 1;
+  }
+}
+
+bool isPosIn(const P& pos, const Rect& area) {
+  return
+    pos.x >= area.p0.x &&
+    pos.x <= area.p1.x &&
+    pos.y >= area.p0.y &&
+    pos.y <= area.p1.y;
+}
+
+bool isAreaInOther(const Rect& inner, const Rect& outer,
+                   const bool COUNT_EQUAL_AS_INSIDE) {
+  if(COUNT_EQUAL_AS_INSIDE) {
+    return
+      inner.p0.x >= outer.p0.x &&
+      inner.p1.x <= outer.p1.x &&
+      inner.p0.y >= outer.p0.y &&
+      inner.p1.y <= outer.p1.y;
+  } else {
+    return
+      inner.p0.x > outer.p0.x &&
+      inner.p1.x < outer.p1.x &&
+      inner.p0.y > outer.p0.y &&
+      inner.p1.y < outer.p1.y;
+  }
+}
+
+bool isAreaInMap(const Rect& area) {
+  return isPosInMap(area.p0) && isPosInMap(area.p1);
+}
+
+int kingDist(const int X0, const int Y0, const int X1, const int Y1) {
+  return max(abs(X1 - X0), abs(Y1 - Y0));
+}
+
+int kingDist(const P& p0, const P& p1) {
+  return max(abs(p1.x - p0.x), abs(p1.y - p0.y));
+}
+
+bool isValInRange(const int VAL, const Range& range) {
+  if(VAL < range.lower) {return false;}
+  if(VAL > range.upper) {return false;}
+  return true;
+}
+
 } //Utils
 
 namespace Rnd {

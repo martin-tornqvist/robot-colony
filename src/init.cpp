@@ -5,6 +5,7 @@
 #include "sdlHandling.h"
 #include "rendering.h"
 #include "input.h"
+#include "world.h"
 
 using namespace std;
 
@@ -45,13 +46,13 @@ void cleanupGame() {
 //Note: Initialization order matters in some cases
 void initSession() {
   TRACE_FUNC_BEGIN;
-
+  World::init();
   TRACE_FUNC_END;
 }
 
 void cleanupSession() {
   TRACE_FUNC_BEGIN;
-
+  World::cleanup();
   TRACE_FUNC_END;
 }
 

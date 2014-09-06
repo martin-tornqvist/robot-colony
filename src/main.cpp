@@ -11,6 +11,7 @@
 #include "rendering.h"
 #include "sdlHandling.h"
 #include "time.h"
+#include "world.h"
 
 extern "C" {
 #include "lua.h"
@@ -20,10 +21,9 @@ extern "C" {
 
 using namespace std;
 
-static int drawText(lua_State* L) {
-  const string str = lua_tostring(L, 1);
-  const P p(lua_tointeger(L, 2), lua_tointeger(L, 3));
-  Rendering::drawText(str, p, clrWhite);
+static int moveTo(lua_State* L) {
+  const P p(lua_tointeger(L, 1), lua_tointeger(L, 2));
+  World::mobs[0]->tryStepTowards(p);
   return 0;
 }
 
@@ -42,10 +42,12 @@ int main(int argc, char* argv[]) {
   Init::initGame();
   Init::initSession();
 
+  World::mobs.push_back(new Rbt(P(MAP_W_HALF - 1, MAP_H_HALF - 1)));
+
   L = luaL_newstate();  //initialize Lua
   luaL_openlibs(L);     //Load Lua base libraries
 
-  const Uint32 MS_PER_TICK = 80;
+  const Uint32 MS_PER_TICK = 100;
   Uint32 msLast = 0;
 
   bool quit = false;
@@ -58,11 +60,11 @@ int main(int argc, char* argv[]) {
 
       Rendering::clearScreen();
 
-      lua_register(L, "drawText", drawText);    //Register function
-      luaL_dofile(L, "../../script/test.lua");  //Run the script
-
+      lua_register(L, "moveTo", moveTo);      //Register function
+      luaL_dofile(L, "../../script/rbt.lua"); //Run the script
 
       Time::tick();
+      Rendering::drawMap();
     }
     Rendering::renderPresent();
 
