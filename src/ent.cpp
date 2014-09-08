@@ -32,20 +32,17 @@ void Mob::tryStepTowards(const P& p) {
   hasActed_ = true;
 }
 
-//------------------------------------------------------------------- ROCK GROUND
-GlyphAndClr RockGround::getGlyphAndClr() const {
-  return GlyphAndClr('.', clrBrownXDrk);
-}
-
-//------------------------------------------------------------------- ROCK WALL
-GlyphAndClr RockWall::getGlyphAndClr() const {
-  return GlyphAndClr('^', clrBrownXDrk, clrGray);
-}
-
 //------------------------------------------------------------------- ROBOT
 GlyphAndClr Rbt::getGlyphAndClr() const {
-  Clr clr = pwrCur_ < 1 ? clrRed : (pwrCur_ < (pwrMax_ / 3) ? clrYellow : clrGreen);
+  Clr clr = pwrCur_ < 1 ? clrRed : (pwrCur_ < (pwrMax_ / 2) ? clrYellow : clrGreen);
   return GlyphAndClr('R', clrBlack, clr);
+}
+
+void Rbt::onTick() {
+  auto* rigidHere = World::rigids[p_.x][p_.y];
+  if(rigidHere->getEntType() == EntType::rechargeStation) {
+    if(pwrCur_ < pwrMax_) {++pwrCur_;}
+  }
 }
 
 bool Rbt::canStep() const {
@@ -53,5 +50,17 @@ bool Rbt::canStep() const {
 }
 
 void Rbt::onStepped() {
-  if(pwrCur_ > 0) {--pwrCur_;}
+  --pwrCur_;
+}
+
+void Rbt::tryBuild(const P& p) {
+  if(!hasActed_ && World::rigids[p.x][p.y]->getEntType() != EntType::rechargeStation) {
+    if(Utils::isPosAdj(p_, p, true)) {
+      World::replaceRigid(new RechargeStation, p);
+      hasActed_ = true;
+      --pwrCur_;
+    } else {
+      tryStepTowards(p);
+    }
+  }
 }

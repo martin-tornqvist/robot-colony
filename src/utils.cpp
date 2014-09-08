@@ -94,6 +94,15 @@ bool isAreaInMap(const Rect& area) {
   return isPosInMap(area.p0) && isPosInMap(area.p1);
 }
 
+bool isPosAdj(const P& pos1, const P& pos2, const bool COUNT_SAME_CELL_AS_ADJ) {
+  if(pos1.x == pos2.x && pos1.y == pos2.y)  {return COUNT_SAME_CELL_AS_ADJ;}
+  if(pos1.x < pos2.x - 1)                   {return false;}
+  if(pos1.x > pos2.x + 1)                   {return false;}
+  if(pos1.y < pos2.y - 1)                   {return false;}
+  if(pos1.y > pos2.y + 1)                   {return false;}
+  return true;
+}
+
 int kingDist(const int X0, const int Y0, const int X1, const int Y1) {
   return max(abs(X1 - X0), abs(Y1 - Y0));
 }

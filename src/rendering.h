@@ -27,7 +27,7 @@ void drawText(const std::string& str, const P& p, const Clr& clr,
 
 void drawRect(const P& p, const P& d, const Clr& clr, const RectType rectType);
 
-void drawLine(const P& p0, const P& p1, const Clr& clr);
+void drawLine(const P& pxPos0, const P& pxPos1, const Clr& clr);
 
 void drawMap();
 

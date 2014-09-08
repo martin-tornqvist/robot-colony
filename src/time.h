@@ -5,6 +5,8 @@ namespace Time {
 
 void tick();
 
+int getTickNr();
+
 } //Time
 
 #endif

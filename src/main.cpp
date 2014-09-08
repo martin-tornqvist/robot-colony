@@ -22,10 +22,28 @@ extern "C" {
 using namespace std;
 
 //----------------------------------------------- C++ functions called from Lua
+static int wait(lua_State* L) {
+  (void)L;
+  World::mobs[0]->hasActed_ = true;
+  return 0;
+}
+
 static int moveTo(lua_State* L) {
   const P p(lua_tointeger(L, 1), lua_tointeger(L, 2));
   World::mobs[0]->tryStepTowards(p);
   return 0;
+}
+
+static int build(lua_State* L) {
+  const P p(lua_tointeger(L, 1), lua_tointeger(L, 2));
+  World::mobs[0]->tryBuild(p);
+  return 0;
+}
+
+static int getTickNr(lua_State* L) {
+  const P p(World::mobs[0]->getPos());
+  lua_pushnumber(L, Time::getTickNr());
+  return 1;
 }
 
 static int getRbtPos(lua_State* L) {
@@ -35,15 +53,27 @@ static int getRbtPos(lua_State* L) {
   return 2;
 }
 
+static int getRbtPwr(lua_State* L) {
+  const Rbt* const rbt = static_cast<const Rbt*>(World::mobs[0]);
+  lua_pushnumber(L, rbt->getPwrCur());
+  return 1;
+}
+
+static int getRbtPwrPct(lua_State* L) {
+  const Rbt* const rbt = static_cast<const Rbt*>(World::mobs[0]);
+  lua_pushnumber(L, (100 * rbt->getPwrCur()) / rbt->getPwrMax());
+  return 1;
+}
+
 //----------------------------------------------- Lua functions called from C++
 static void luaAct(lua_State* L) {
   lua_getglobal(L, "act");
-  lua_call(L, 0, 0);
+  lua_pcall(L, 0, 0, 0);
 }
 
 static void luaInf(lua_State* L) {
   lua_getglobal(L, "displayInfo");
-  lua_call(L, 0, 1);
+  lua_pcall(L, 0, 1, 0);
 }
 
 #ifdef _WIN32
@@ -70,11 +100,16 @@ int main(int argc, char* argv[]) {
   L = luaL_newstate();  //initialize Lua
   luaL_openlibs(L);     //Load Lua base libraries
 
-  const Uint32 MS_PER_TICK = 220;
+  const Uint32 MS_PER_TICK = 80;
   Uint32 msLast = 0;
 
-  lua_register(L, "moveTo",     moveTo);
-  lua_register(L, "getRbtPos",  getRbtPos);
+  lua_register(L, "wait",         wait);
+  lua_register(L, "moveTo",       moveTo);
+  lua_register(L, "build",        build);
+  lua_register(L, "getTickNr",    getTickNr);
+  lua_register(L, "getRbtPos",    getRbtPos);
+  lua_register(L, "getRbtPwr",    getRbtPwr);
+  lua_register(L, "getRbtPwrPct", getRbtPwrPct);
 
   luaL_dofile(L, "../../script/rbt.lua"); //Run the script
 

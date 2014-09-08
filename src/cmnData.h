@@ -7,8 +7,8 @@ const std::string gameVersionStr = "v0.01";
 
 const int SCR_BPP = 32;
 
-const int SCR_W       = 80;
-const int SCR_H       = 22;
+const int SCR_W       = 60;
+const int SCR_H       = 28;
 const int SCR_W_HALF  = SCR_W / 2;
 const int SCR_H_HALF  = SCR_H / 2;
 

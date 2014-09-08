@@ -256,8 +256,6 @@ void init() {
 void cleanup() {
   TRACE_FUNC_BEGIN;
 
-//  tryFreeTexture();
-
   if(sdlRenderer_) {
     SDL_DestroyRenderer(sdlRenderer_);
     sdlRenderer_ = nullptr;
@@ -305,9 +303,9 @@ void drawRect(const P& p, const P& d, const Clr& clr, const RectType rectType) {
   }
 }
 
-void drawLine(const P& p0, const P& p1, const Clr& clr) {
+void drawLine(const P& pxPos0, const P& pxPos1, const Clr& clr) {
   setRenderClr(clr);
-  SDL_RenderDrawLine(sdlRenderer_, p0.x, p0.y, p1.x, p1.y);
+  SDL_RenderDrawLine(sdlRenderer_, pxPos0.x, pxPos0.y, pxPos1.x, pxPos1.y);
 }
 
 void renderPresent() {
