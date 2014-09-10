@@ -14,6 +14,8 @@ public:
   virtual GlyphAndClr getGlyphAndClr() const = 0;
 
   virtual EntType getEntType() const = 0;
+
+  virtual void onTick() {}
 };
 
 class Rigid : public Ent {
@@ -60,19 +62,38 @@ class Asm : public Rigid {
 public:
   Asm() : Rigid() {}
 
+  void onTick() override {isBeingBuiltThisTick_ = false;}
+
+  void tickBuild();
+
+  bool isFinished() const {return ticksBuilt_ >= getNrTicksToBuild();}
+
+  GlyphAndClr getGlyphAndClr() const override final;
+
+protected:
+  virtual int getNrTicksToBuild() const = 0;
+
+  virtual GlyphAndClr getGlyphAndClr_() const = 0;
+
+  bool isBeingBuiltThisTick_ = false;
+
+  int ticksBuilt_ = 0;
 };
 
 class RechargeStation : public Asm {
 public:
   RechargeStation() : Asm() {}
 
-  GlyphAndClr getGlyphAndClr() const override {
-    return GlyphAndClr('%', clrYellow, clrGray);
-  }
-
   EntType getEntType() const override {return EntType::rechargeStation;}
 
   bool isBlocking() const override {return false;}
+
+protected:
+  GlyphAndClr getGlyphAndClr_() const override {
+    return GlyphAndClr('+', clrYellow, clrBlack);
+  }
+
+  int getNrTicksToBuild() const override {return 8;}
 };
 
 class Mob : public Ent {
@@ -81,8 +102,6 @@ public:
   Mob(const P& p) : Ent(), p_(p) {}
 
   virtual ~Mob() {}
-
-  virtual void onTick() {}
 
   P getPos() const {return p_;}
 

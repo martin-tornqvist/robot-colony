@@ -59,6 +59,12 @@ static int getRbtPwr(lua_State* L) {
   return 1;
 }
 
+static int getRbtPwrMax(lua_State* L) {
+  const Rbt* const rbt = static_cast<const Rbt*>(World::mobs[0]);
+  lua_pushnumber(L, rbt->getPwrMax());
+  return 1;
+}
+
 static int getRbtPwrPct(lua_State* L) {
   const Rbt* const rbt = static_cast<const Rbt*>(World::mobs[0]);
   lua_pushnumber(L, (100 * rbt->getPwrCur()) / rbt->getPwrMax());
@@ -100,7 +106,7 @@ int main(int argc, char* argv[]) {
   L = luaL_newstate();  //initialize Lua
   luaL_openlibs(L);     //Load Lua base libraries
 
-  const Uint32 MS_PER_TICK = 80;
+  const Uint32 MS_PER_TICK = 60;
   Uint32 msLast = 0;
 
   lua_register(L, "wait",         wait);
@@ -109,6 +115,7 @@ int main(int argc, char* argv[]) {
   lua_register(L, "getTickNr",    getTickNr);
   lua_register(L, "getRbtPos",    getRbtPos);
   lua_register(L, "getRbtPwr",    getRbtPwr);
+  lua_register(L, "getRbtPwrMax", getRbtPwrMax);
   lua_register(L, "getRbtPwrPct", getRbtPwrPct);
 
   luaL_dofile(L, "../../script/rbt.lua"); //Run the script
@@ -123,17 +130,16 @@ int main(int argc, char* argv[]) {
 
       Rendering::clearScreen();
 
+      Time::tick();
+
       luaAct(L);
 
-      Time::tick();
       Rendering::drawMap();
 
       luaInf(L);
       const string str = lua_tostring(L, -1);
       lua_pop(L, 1);
-      if(!str.empty()) {
-        Rendering::drawText(str, P(0, 0), clrBlack, clrGray);
-      }
+      if(!str.empty()) {Rendering::drawText(str, P(0, 0), clrWhiteHigh, clrBlack);}
     }
     Rendering::renderPresent();
 

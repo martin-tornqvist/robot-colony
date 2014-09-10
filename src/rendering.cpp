@@ -66,7 +66,7 @@ void putPx(const P& pxPos) {
 void loadFontData() {
   TRACE_FUNC_BEGIN;
 
-  SDL_Surface* fontSurfaceTmp = IMG_Load("16x24.png"); //IMG_Load("11x19.png");
+  SDL_Surface* fontSurfaceTmp = IMG_Load(fontImg.data());
 
   Uint32 bgClr = SDL_MapRGB(fontSurfaceTmp->format, 0, 0, 0);
 

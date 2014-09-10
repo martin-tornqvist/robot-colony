@@ -36,9 +36,11 @@ void cleanup() {
   mobs.resize(0);
 }
 
-void replaceRigid(Rigid* const newRigid, const P& p) {
+Rigid* replaceRigid(Rigid* const newRigid, const P& p) {
+  assert(newRigid && "New rigid is nullptr");
   delete rigids[p.x][p.y];
   rigids[p.x][p.y] = newRigid;
+  return newRigid;
 }
 
 }

@@ -3,8 +3,9 @@ didFirstMove = false
 function displayInfo()
   x, y = getRbtPos()
   t = getTickNr()
-  pwrPct = getRbtPwrPct()
-  return "Pos: " .. x .. ", " .. y .. "   Pwr: " .. pwrPct .. "%   Tick: " .. t
+  pwr = getRbtPwr()
+  pwrMax = getRbtPwrMax()
+  return "Pos: " .. x .. ", " .. y .. "   Pwr: " .. pwr .. "/" .. pwrMax .. "   Tick: " .. t
 end
 
 recharging = false

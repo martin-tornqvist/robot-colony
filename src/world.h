@@ -19,7 +19,7 @@ void init();
 
 void cleanup();
 
-void replaceRigid(Rigid* const newRigid, const P& p);
+Rigid* replaceRigid(Rigid* const newRigid, const P& p);
 
 }
 
