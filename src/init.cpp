@@ -12,19 +12,23 @@ using namespace std;
 namespace Init {
 
 //Note: Initialization order matters in some cases
-void initIO() {
+void initIO(lua_State*& luaState) {
   TRACE_FUNC_BEGIN;
   SdlHandling::init();
 //  Config::init();
   Input::init();
   Rendering::init();
+  luaState = luaL_newstate(); //initialize Lua
+  luaL_openlibs(luaState);    //Load Lua base libraries
 //  Audio::init();
   TRACE_FUNC_END;
 }
 
-void cleanupIO() {
+void cleanupIO(lua_State*& luaState) {
   TRACE_FUNC_BEGIN;
 //  Audio::cleanup();
+  lua_close(luaState); //Cleanup Lua
+  luaState = nullptr;
   Rendering::cleanup();
   SdlHandling::cleanup();
   TRACE_FUNC_END;

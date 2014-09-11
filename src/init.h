@@ -5,6 +5,12 @@
 
 #include <assert.h>
 
+extern "C" {
+#include "lua.h"
+#include "lualib.h"
+#include "lauxlib.h"
+}
+
 //-------------------------------------------------------------------
 // OPTIONS
 //-------------------------------------------------------------------
@@ -62,8 +68,8 @@ namespace Init {
 extern bool isCheatVisionEnabled;
 extern bool quitToMainMenu;
 
-void initIO();
-void cleanupIO();
+void initIO(lua_State*& luaState);
+void cleanupIO(lua_State*& luaState);
 
 void initGame();
 void cleanupGame();

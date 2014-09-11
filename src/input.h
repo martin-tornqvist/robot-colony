@@ -5,7 +5,7 @@ namespace Input {
 
 void init();
 
-void read(bool& quit);
+void read(bool& quitGame, bool& quitSession);
 
 } //Input
 
