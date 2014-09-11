@@ -1,11 +1,14 @@
 didFirstMove = false
 
-function displayInfo()
-  x, y = getRbtPos()
-  t = getTickNr()
-  pwr = getRbtPwr()
-  pwrMax = getRbtPwrMax()
-  return "Pos: " .. x .. ", " .. y .. "   Pwr: " .. pwr .. "/" .. pwrMax .. "   Tick: " .. t
+function display_info()
+  x, y = get_rbt_pos()
+  t = get_tick_nr()
+  power = get_rbt_power()
+  power_max = get_rbt_power_max()
+  return
+    "Pos: " .. x .. ", " .. y ..
+    "   Power: " .. power .. "/" .. power_max ..
+    "   Tick: " .. t
 end
 
 recharging = false
@@ -13,16 +16,18 @@ recharging = false
 function act()
   build(50, 20)
   
-  pwr     = getRbtPwr()
-  pwrPct  = getRbtPwrPct();
+  power         = get_rbt_power()
+  power_percent = get_rbt_power_percent();
   
-  if(pwrPct <= 50) then
-    moveTo(50, 20)
+  recharge_x, recharge_y = get_pos_of_nearest_assembly();
+  
+  if(power_percent <= 50) then
+    move_to(recharge_x, recharge_y)
     wait()
     recharging = true
   end
   
-  if pwrPct == 100 then
+  if power_percent == 100 then
     recharging = false
   end
   

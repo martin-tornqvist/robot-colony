@@ -3,7 +3,7 @@
 
 #include "cmnTypes.h"
 
-enum class EntType {generic, rbt, rechargeStation};
+enum class EntType {genericRigid, assembly, rbt};
 
 class Ent {
 public:
@@ -39,7 +39,7 @@ public:
     return GlyphAndClr('.', clrBrownXDrk);
   }
 
-  EntType getEntType() const override {return EntType::generic;}
+  EntType getEntType() const override {return EntType::genericRigid;}
 };
 
 class RockWall : public Rigid {
@@ -54,7 +54,7 @@ public:
     return GlyphAndClr(10, clrBrownXDrk, clrGray);
   }
 
-  EntType getEntType() const override {return EntType::generic;}
+  EntType getEntType() const override {return EntType::genericRigid;}
 };
 
 //Note: Assemblies
@@ -84,7 +84,7 @@ class RechargeStation : public Asm {
 public:
   RechargeStation() : Asm() {}
 
-  EntType getEntType() const override {return EntType::rechargeStation;}
+  EntType getEntType() const override {return EntType::assembly;}
 
   bool isBlocking() const override {return false;}
 

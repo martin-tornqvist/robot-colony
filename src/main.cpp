@@ -12,6 +12,8 @@
 #include "time.h"
 #include "world.h"
 #include "ent.h"
+#include "mapParsing.h"
+#include "utils.h"
 
 using namespace std;
 
@@ -22,7 +24,7 @@ static int wait(lua_State* luaState) {
   return 0;
 }
 
-static int moveTo(lua_State* luaState) {
+static int move_to(lua_State* luaState) {
   const P p(lua_tointeger(luaState, 1), lua_tointeger(luaState, 2));
   World::mobs[0]->tryStepTowards(p);
   return 0;
@@ -34,35 +36,74 @@ static int build(lua_State* luaState) {
   return 0;
 }
 
-static int getTickNr(lua_State* luaState) {
+static int get_tick_nr(lua_State* luaState) {
   const P p(World::mobs[0]->getPos());
   lua_pushnumber(luaState, Time::getTickNr());
   return 1;
 }
 
-static int getRbtPos(lua_State* luaState) {
+static int get_rbt_pos(lua_State* luaState) {
   const P p(World::mobs[0]->getPos());
   lua_pushnumber(luaState, p.x);
   lua_pushnumber(luaState, p.y);
   return 2;
 }
 
-static int getRbtPwr(lua_State* luaState) {
+static int get_rbt_power(lua_State* luaState) {
   const Rbt* const rbt = static_cast<const Rbt*>(World::mobs[0]);
   lua_pushnumber(luaState, rbt->getPwrCur());
   return 1;
 }
 
-static int getRbtPwrMax(lua_State* luaState) {
+static int get_rbt_power_max(lua_State* luaState) {
   const Rbt* const rbt = static_cast<const Rbt*>(World::mobs[0]);
   lua_pushnumber(luaState, rbt->getPwrMax());
   return 1;
 }
 
-static int getRbtPwrPct(lua_State* luaState) {
+static int get_rbt_power_percent(lua_State* luaState) {
   const Rbt* const rbt = static_cast<const Rbt*>(World::mobs[0]);
   lua_pushnumber(luaState, (100 * rbt->getPwrCur()) / rbt->getPwrMax());
   return 1;
+}
+
+static int get_pos_of_nearest_assembly(lua_State* luaState) {
+  bool blocked[MAP_W][MAP_H];
+  for(int y = 0; y < MAP_H; ++y) {
+    for(int x = 0; x < MAP_W; ++x) {
+      blocked[x][y] = World::rigids[x][y]->isBlocking();
+    }
+  }
+
+  const P rbtPos(World::mobs[0]->getPos());
+
+  int flood[MAP_W][MAP_H];
+
+  FloodFill::run(rbtPos, blocked, flood, INT_MAX, P(-1, -1), true);
+
+  P ret(-1, -1);
+  int curDistToNearest = INT_MAX;
+
+  for(int y = 0; y < MAP_H; ++y) {
+    for(int x = 0; x < MAP_W; ++x) {
+      const auto* const rigid = World::rigids[x][y];
+      if(rigid->getEntType() == EntType::assembly) {
+        if(static_cast<const Asm*>(rigid)->isFinished()) {
+          const P p(x, y);
+          const int DIST = Utils::kingDist(rbtPos, p);
+          if(DIST < curDistToNearest) {
+            curDistToNearest = DIST;
+            ret = p;
+          }
+        }
+      }
+    }
+  }
+
+  lua_pushnumber(luaState, ret.x);
+  lua_pushnumber(luaState, ret.y);
+
+  return 2;
 }
 
 //----------------------------------------------- Lua functions called from C++
@@ -72,7 +113,7 @@ static void luaAct(lua_State* luaState) {
 }
 
 static void luaInf(lua_State* luaState) {
-  lua_getglobal(luaState, "displayInfo");
+  lua_getglobal(luaState, "display_info");
   lua_pcall(luaState, 0, 1, 0);
 }
 
@@ -89,14 +130,15 @@ int main(int argc, char* argv[]) {
 
   Init::initIO(luaState);
 
-  lua_register(luaState, "wait",         wait);
-  lua_register(luaState, "moveTo",       moveTo);
-  lua_register(luaState, "build",        build);
-  lua_register(luaState, "getTickNr",    getTickNr);
-  lua_register(luaState, "getRbtPos",    getRbtPos);
-  lua_register(luaState, "getRbtPwr",    getRbtPwr);
-  lua_register(luaState, "getRbtPwrMax", getRbtPwrMax);
-  lua_register(luaState, "getRbtPwrPct", getRbtPwrPct);
+  lua_register(luaState, "wait",                        wait);
+  lua_register(luaState, "move_to",                     move_to);
+  lua_register(luaState, "build",                       build);
+  lua_register(luaState, "get_tick_nr",                 get_tick_nr);
+  lua_register(luaState, "get_rbt_pos",                 get_rbt_pos);
+  lua_register(luaState, "get_rbt_power",               get_rbt_power);
+  lua_register(luaState, "get_rbt_power_max",           get_rbt_power_max);
+  lua_register(luaState, "get_rbt_power_percent",       get_rbt_power_percent);
+  lua_register(luaState, "get_pos_of_nearest_assembly", get_pos_of_nearest_assembly);
 
   Init::initGame();
 

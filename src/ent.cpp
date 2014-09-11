@@ -63,7 +63,7 @@ GlyphAndClr Rbt::getGlyphAndClr() const {
 
 void Rbt::onTick() {
   auto* rigidHere = World::rigids[p_.x][p_.y];
-  if(rigidHere->getEntType() == EntType::rechargeStation) {
+  if(rigidHere->getEntType() == EntType::assembly) {
     if(static_cast<Asm*>(rigidHere)->isFinished()) {
       if(pwrCur_ < pwrMax_) {++pwrCur_;}
     }
@@ -83,7 +83,7 @@ void Rbt::tryBuild(const P& p) {
   const auto  entTypeHere = rigidHere->getEntType();
   const bool  IS_ADJ      = Utils::isPosAdj(p_, p, true);
 
-  if(entTypeHere == EntType::rechargeStation) {
+  if(entTypeHere == EntType::assembly) {
     auto* const assembly = static_cast<Asm*>(rigidHere);
     if(!assembly->isFinished()) {
       if(IS_ADJ) {
