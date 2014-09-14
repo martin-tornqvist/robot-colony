@@ -57,52 +57,71 @@ GlyphAndClr Asm::getGlyphAndClr() const {
 
 //------------------------------------------------------------------- ROBOT
 GlyphAndClr Rbt::getGlyphAndClr() const {
-  Clr clr = pwrCur_ < 1 ? clrRed : (pwrCur_ < (pwrMax_ / 2) ? clrYellow : clrGreen);
+  Clr clr = energyCur_ < 1 ? clrRed :
+            (energyCur_ < (energyMax_ / 2) ? clrYellow : clrGreen);
   return GlyphAndClr('R', clrBlack, clr);
 }
 
 void Rbt::onTick() {
   auto* rigidHere = World::rigids[p_.x][p_.y];
   if(rigidHere->getEntType() == EntType::assembly) {
-    if(static_cast<Asm*>(rigidHere)->isFinished()) {
-      if(pwrCur_ < pwrMax_) {++pwrCur_;}
+    const auto* const assemblyHere     = static_cast<const Asm*>(rigidHere);
+    const auto        assemblyTypeHere = assemblyHere->getAsmType();
+    if(assemblyTypeHere == AsmType::rechargeStation && assemblyHere->isFinished()) {
+      if(energyCur_ < energyMax_) {energyCur_ += 20;}
     }
   }
 }
 
 bool Rbt::canStep() const {
-  return pwrCur_ > 0;
+  return energyCur_ > 0;
 }
 
 void Rbt::onStepped() {
-  --pwrCur_;
+  energyCur_ -= 20;
 }
 
-void Rbt::tryBuild(const P& p) {
-  auto* const rigidHere   = World::rigids[p.x][p.y];
-  const auto  entTypeHere = rigidHere->getEntType();
-  const bool  IS_ADJ      = Utils::isPosAdj(p_, p, true);
+void Rbt::tryBuild(const AsmType assemblyType, const P& p) {
+  if(!hasActed_) {
+    auto* const rigidHere   = World::rigids[p.x][p.y];
+    const auto  entTypeHere = rigidHere->getEntType();
+    const bool  IS_ADJ      = Utils::isPosAdj(p_, p, true);
 
-  if(entTypeHere == EntType::assembly) {
-    auto* const assembly = static_cast<Asm*>(rigidHere);
-    if(!assembly->isFinished()) {
+    if(entTypeHere == EntType::assembly) {
+      auto* const assemblyHere     = static_cast<Asm*>(rigidHere);
+      const auto  assemblyTypeHere = assemblyHere->getAsmType();
+      if(assemblyTypeHere != assemblyType || !assemblyHere->isFinished()) {
+        if(IS_ADJ) {
+          hasActed_ = true;
+          energyCur_ -= 20;
+          assemblyHere->tickBuild();
+        } else {
+          tryStepTowards(p);
+        }
+      }
+    } else {
       if(IS_ADJ) {
         hasActed_ = true;
-        --pwrCur_;
+        energyCur_ -= 20;
+
+        Rigid* newRigid = nullptr;
+        switch(assemblyType) {
+          case AsmType::rechargeStation: {
+            newRigid = World::replaceRigid(new RechargeStation, p);
+          } break;
+
+          case AsmType::road: {
+            newRigid = World::replaceRigid(new Road, p);
+          } break;
+        }
+
+        assert(newRigid && "Failed to create rigid");
+
+        auto* const assembly = static_cast<Asm*>(newRigid);
         assembly->tickBuild();
       } else {
         tryStepTowards(p);
       }
-    }
-  } else {
-    if(IS_ADJ) {
-      hasActed_ = true;
-      --pwrCur_;
-      auto* const newRigid = World::replaceRigid(new RechargeStation, p);
-      auto* const assembly = static_cast<Asm*>(newRigid);
-      assembly->tickBuild();
-    } else {
-      tryStepTowards(p);
     }
   }
 }

@@ -31,8 +31,43 @@ static int move_to(lua_State* luaState) {
 }
 
 static int build(lua_State* luaState) {
-  const P p(lua_tointeger(luaState, 1), lua_tointeger(luaState, 2));
-  World::mobs[0]->tryBuild(p);
+  const string name = lua_tostring(luaState, 1);
+
+  (void)name;
+
+  const P p(lua_tointeger(luaState, 2), lua_tointeger(luaState, 3));
+  World::mobs[0]->tryBuild(AsmType::rechargeStation, p);
+  return 0;
+}
+
+static int build_road(lua_State* luaState) {
+  const P p0(lua_tointeger(luaState, 1), lua_tointeger(luaState, 2));
+  const P p1(lua_tointeger(luaState, 3), lua_tointeger(luaState, 4));
+
+  bool blocked[MAP_W][MAP_H];
+  for(int y = 0; y < MAP_H; ++y) {
+    for(int x = 0; x < MAP_W; ++x) {
+      blocked[x][y] = World::rigids[x][y]->isBlocking();
+    }
+  }
+  vector<P> path;
+  PathFind::run(p0, p1, blocked, path, false);
+
+  if(!path.empty()) {
+    for(const P& p : path) {
+      const auto* const rigidHere   = World::rigids[p.x][p.y];
+      const auto        entTypeHere = rigidHere->getEntType();
+      bool isRoad = false;
+      if(entTypeHere == EntType::assembly) {
+        isRoad = static_cast<const Asm*>(rigidHere)->getAsmType() == AsmType::road;
+      }
+      if(isRoad || entTypeHere != EntType::assembly) {
+        World::mobs[0]->tryBuild(AsmType::road, p);
+      }
+    }
+
+  }
+
   return 0;
 }
 
@@ -49,25 +84,25 @@ static int get_rbt_pos(lua_State* luaState) {
   return 2;
 }
 
-static int get_rbt_power(lua_State* luaState) {
+static int get_rbt_energy(lua_State* luaState) {
   const Rbt* const rbt = static_cast<const Rbt*>(World::mobs[0]);
-  lua_pushnumber(luaState, rbt->getPwrCur());
+  lua_pushnumber(luaState, rbt->getEnergyCur());
   return 1;
 }
 
-static int get_rbt_power_max(lua_State* luaState) {
+static int get_rbt_energy_max(lua_State* luaState) {
   const Rbt* const rbt = static_cast<const Rbt*>(World::mobs[0]);
-  lua_pushnumber(luaState, rbt->getPwrMax());
+  lua_pushnumber(luaState, rbt->getEnergyMax());
   return 1;
 }
 
-static int get_rbt_power_percent(lua_State* luaState) {
+static int get_rbt_energy_percent(lua_State* luaState) {
   const Rbt* const rbt = static_cast<const Rbt*>(World::mobs[0]);
-  lua_pushnumber(luaState, (100 * rbt->getPwrCur()) / rbt->getPwrMax());
+  lua_pushnumber(luaState, (100 * rbt->getEnergyCur()) / rbt->getEnergyMax());
   return 1;
 }
 
-static int get_pos_of_nearest_assembly(lua_State* luaState) {
+static int get_nearest_recharge_station(lua_State* luaState) {
   bool blocked[MAP_W][MAP_H];
   for(int y = 0; y < MAP_H; ++y) {
     for(int x = 0; x < MAP_W; ++x) {
@@ -86,9 +121,11 @@ static int get_pos_of_nearest_assembly(lua_State* luaState) {
 
   for(int y = 0; y < MAP_H; ++y) {
     for(int x = 0; x < MAP_W; ++x) {
-      const auto* const rigid = World::rigids[x][y];
-      if(rigid->getEntType() == EntType::assembly) {
-        if(static_cast<const Asm*>(rigid)->isFinished()) {
+      const auto* const rigidHere = World::rigids[x][y];
+      if(rigidHere->getEntType() == EntType::assembly) {
+        const auto* const assemblyHere      = static_cast<const Asm*>(rigidHere);
+        const auto        assemblyTypeHere  = assemblyHere->getAsmType();
+        if(assemblyTypeHere == AsmType::rechargeStation && assemblyHere->isFinished()) {
           const P p(x, y);
           const int DIST = Utils::kingDist(rbtPos, p);
           if(DIST < curDistToNearest) {
@@ -130,15 +167,16 @@ int main(int argc, char* argv[]) {
 
   Init::initIO(luaState);
 
-  lua_register(luaState, "wait",                        wait);
-  lua_register(luaState, "move_to",                     move_to);
-  lua_register(luaState, "build",                       build);
-  lua_register(luaState, "get_tick_nr",                 get_tick_nr);
-  lua_register(luaState, "get_rbt_pos",                 get_rbt_pos);
-  lua_register(luaState, "get_rbt_power",               get_rbt_power);
-  lua_register(luaState, "get_rbt_power_max",           get_rbt_power_max);
-  lua_register(luaState, "get_rbt_power_percent",       get_rbt_power_percent);
-  lua_register(luaState, "get_pos_of_nearest_assembly", get_pos_of_nearest_assembly);
+  lua_register(luaState, "wait",                          wait);
+  lua_register(luaState, "move_to",                       move_to);
+  lua_register(luaState, "build",                         build);
+  lua_register(luaState, "build_road",                    build_road);
+  lua_register(luaState, "get_tick_nr",                   get_tick_nr);
+  lua_register(luaState, "get_rbt_pos",                   get_rbt_pos);
+  lua_register(luaState, "get_rbt_energy",                get_rbt_energy);
+  lua_register(luaState, "get_rbt_energy_max",            get_rbt_energy_max);
+  lua_register(luaState, "get_rbt_energy_percent",        get_rbt_energy_percent);
+  lua_register(luaState, "get_nearest_recharge_station",  get_nearest_recharge_station);
 
   Init::initGame();
 

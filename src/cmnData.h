@@ -7,15 +7,15 @@ const std::string gameVersionStr = "v0.01";
 
 const int SCR_BPP = 32;
 
-const int SCR_W       = 80;
-const int SCR_H       = 24;
-const int SCR_W_HALF  = SCR_W / 2;
-const int SCR_H_HALF  = SCR_H / 2;
-
-const int MAP_W       = SCR_W;
-const int MAP_H       = SCR_H;
+const int MAP_W       = 100;
+const int MAP_H       = 40;
 const int MAP_W_HALF  = MAP_W / 2;
 const int MAP_H_HALF  = MAP_H / 2;
+
+const int SCR_W       = MAP_W;
+const int SCR_H       = MAP_H;
+const int SCR_W_HALF  = SCR_W / 2;
+const int SCR_H_HALF  = SCR_H / 2;
 
 //-----------------------------------------------------------------------------
 //TODO Move to Config, make non-const:

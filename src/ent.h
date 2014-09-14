@@ -5,6 +5,8 @@
 
 enum class EntType {genericRigid, assembly, rbt};
 
+enum class AsmType {rechargeStation, road};
+
 class Ent {
 public:
   Ent() {}
@@ -62,6 +64,10 @@ class Asm : public Rigid {
 public:
   Asm() : Rigid() {}
 
+  EntType getEntType() const override final {return EntType::assembly;}
+
+  virtual AsmType getAsmType() const = 0;
+
   void onTick() override {isBeingBuiltThisTick_ = false;}
 
   void tickBuild();
@@ -84,16 +90,32 @@ class RechargeStation : public Asm {
 public:
   RechargeStation() : Asm() {}
 
-  EntType getEntType() const override {return EntType::assembly;}
-
   bool isBlocking() const override {return false;}
+
+  AsmType getAsmType() const override {return AsmType::rechargeStation;}
 
 protected:
   GlyphAndClr getGlyphAndClr_() const override {
     return GlyphAndClr('+', clrYellow, clrBlack);
   }
 
-  int getNrTicksToBuild() const override {return 8;}
+  int getNrTicksToBuild() const override {return 38;}
+};
+
+class Road : public Asm {
+public:
+  Road() : Asm() {}
+
+  bool isBlocking() const override {return false;}
+
+  AsmType getAsmType() const override {return AsmType::road;}
+
+protected:
+  GlyphAndClr getGlyphAndClr_() const override {
+    return GlyphAndClr('#', clrGray, clrBlack);
+  }
+
+  int getNrTicksToBuild() const override {return 10;}
 };
 
 class Mob : public Ent {
@@ -107,7 +129,10 @@ public:
 
   void tryStepTowards(const P& p);
 
-  virtual void tryBuild(const P& p) {(void)p;}
+  virtual void tryBuild(const AsmType assemblyType, const P& p) {
+    (void)assemblyType;
+    (void)p;
+  }
 
   bool hasActed_ = false;
 
@@ -129,18 +154,18 @@ public:
 
   void onTick();
 
-  void tryBuild(const P& p) override;
+  void tryBuild(const AsmType assemblyType, const P& p) override;
 
-  int getPwrCur() const {return pwrCur_;}
-  int getPwrMax() const {return pwrMax_;}
+  int getEnergyCur() const {return energyCur_;}
+  int getEnergyMax() const {return energyMax_;}
 
 private:
   bool canStep() const override;
 
   void onStepped() override;
 
-  int pwrMax_ = 80;
-  int pwrCur_ = pwrMax_;
+  int energyMax_ = 800;
+  int energyCur_ = energyMax_;
 };
 
 #endif // ENT_H
