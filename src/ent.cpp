@@ -33,6 +33,17 @@ void Mob::tryStepTowards(const P& p) {
   hasActed_ = true;
 }
 
+void Mob::onTick() {
+  if(nrTicksToSkip_ <= 0) {
+    hasActed_ = false;
+    onTick_();
+  } else {
+    hasActed_ = true;
+  }
+
+  nrTicksToSkip_  = max(0, nrTicksToSkip_ - 1);
+}
+
 //------------------------------------------------------------------- ASSEMBLY
 void Asm::tickBuild() {
   if(ticksBuilt_ < getNrTicksToBuild()) {
@@ -62,13 +73,15 @@ GlyphAndClr Rbt::getGlyphAndClr() const {
   return GlyphAndClr('R', clrBlack, clr);
 }
 
-void Rbt::onTick() {
+void Rbt::onTick_() {
   auto* rigidHere = World::rigids[p_.x][p_.y];
   if(rigidHere->getEntType() == EntType::assembly) {
     const auto* const assemblyHere     = static_cast<const Asm*>(rigidHere);
     const auto        assemblyTypeHere = assemblyHere->getAsmType();
     if(assemblyTypeHere == AsmType::rechargeStation && assemblyHere->isFinished()) {
-      if(energyCur_ < energyMax_) {energyCur_ += 20;}
+      if(energyCur_ < energyMax_) {
+        energyCur_ = min(energyMax_, energyCur_ + 100);
+      }
     }
   }
 }
@@ -79,6 +92,21 @@ bool Rbt::canStep() const {
 
 void Rbt::onStepped() {
   energyCur_ -= 20;
+
+  auto* const rigidHere   = World::rigids[p_.x][p_.y];
+  const auto  entTypeHere = rigidHere->getEntType();
+
+  bool isRoad = false;
+
+  if(entTypeHere == EntType::assembly) {
+    auto* const assemblyHere     = static_cast<Asm*>(rigidHere);
+    const auto  assemblyTypeHere = assemblyHere->getAsmType();
+    isRoad = assemblyTypeHere == AsmType::road && assemblyHere->isFinished();
+  }
+
+  if(!isRoad) {
+    nrTicksToSkip_ = 1;
+  }
 }
 
 void Rbt::tryBuild(const AsmType assemblyType, const P& p) {
@@ -87,19 +115,26 @@ void Rbt::tryBuild(const AsmType assemblyType, const P& p) {
     const auto  entTypeHere = rigidHere->getEntType();
     const bool  IS_ADJ      = Utils::isPosAdj(p_, p, true);
 
+    bool buildNew = true;
+
     if(entTypeHere == EntType::assembly) {
       auto* const assemblyHere     = static_cast<Asm*>(rigidHere);
       const auto  assemblyTypeHere = assemblyHere->getAsmType();
-      if(assemblyTypeHere != assemblyType || !assemblyHere->isFinished()) {
-        if(IS_ADJ) {
-          hasActed_ = true;
-          energyCur_ -= 20;
-          assemblyHere->tickBuild();
-        } else {
-          tryStepTowards(p);
+      if(assemblyTypeHere == assemblyType) {
+        buildNew = false;
+        if(!assemblyHere->isFinished()) {
+          if(IS_ADJ) {
+            hasActed_ = true;
+            energyCur_ -= 20;
+            assemblyHere->tickBuild();
+          } else {
+            tryStepTowards(p);
+          }
         }
       }
-    } else {
+    }
+
+    if(buildNew) {
       if(IS_ADJ) {
         hasActed_ = true;
         energyCur_ -= 20;

@@ -17,32 +17,39 @@
 
 using namespace std;
 
+static void waitRbtReady() {
+  const auto* const rbt = World::mobs[0];
+  while(rbt->hasActed_ || rbt->nrTicksToSkip_ > 0) {}
+}
+
 //----------------------------------------------- C++ functions called from Lua
-static int wait(lua_State* luaState) {
-  (void)luaState;
+static int wait(lua_State* luaSt) {
+  (void)luaSt;
+  waitRbtReady();
   World::mobs[0]->hasActed_ = true;
   return 0;
 }
 
-static int move_to(lua_State* luaState) {
-  const P p(lua_tointeger(luaState, 1), lua_tointeger(luaState, 2));
+static int step_towards(lua_State* luaSt) {
+  waitRbtReady();
+  const P p(lua_tointeger(luaSt, 1), lua_tointeger(luaSt, 2));
   World::mobs[0]->tryStepTowards(p);
   return 0;
 }
 
-static int build(lua_State* luaState) {
-  const string name = lua_tostring(luaState, 1);
+static int build(lua_State* luaSt) {
+  waitRbtReady();
 
-  (void)name;
+//  const string name = lua_tostring(luaSt, 1);
 
-  const P p(lua_tointeger(luaState, 2), lua_tointeger(luaState, 3));
+  const P p(lua_tointeger(luaSt, 2), lua_tointeger(luaSt, 3));
   World::mobs[0]->tryBuild(AsmType::rechargeStation, p);
   return 0;
 }
 
-static int build_road(lua_State* luaState) {
-  const P p0(lua_tointeger(luaState, 1), lua_tointeger(luaState, 2));
-  const P p1(lua_tointeger(luaState, 3), lua_tointeger(luaState, 4));
+static int build_road_to(lua_State* luaSt) {
+  const P p0(World::mobs[0]->getPos());
+  const P p1(lua_tointeger(luaSt, 1), lua_tointeger(luaSt, 2));
 
   bool blocked[MAP_W][MAP_H];
   for(int y = 0; y < MAP_H; ++y) {
@@ -51,9 +58,12 @@ static int build_road(lua_State* luaState) {
     }
   }
   vector<P> path;
-  PathFind::run(p0, p1, blocked, path, false);
+  PathFind::run(p0, p1, blocked, path, true);
 
   if(!path.empty()) {
+
+    reverse(begin(path), end(path));
+
     for(const P& p : path) {
       const auto* const rigidHere   = World::rigids[p.x][p.y];
       const auto        entTypeHere = rigidHere->getEntType();
@@ -71,38 +81,44 @@ static int build_road(lua_State* luaState) {
   return 0;
 }
 
-static int get_tick_nr(lua_State* luaState) {
+static int get_tick_nr(lua_State* luaSt) {
   const P p(World::mobs[0]->getPos());
-  lua_pushnumber(luaState, Time::getTickNr());
+  lua_pushnumber(luaSt, Time::getTickNr());
   return 1;
 }
 
-static int get_rbt_pos(lua_State* luaState) {
+static int get_rbt_pos(lua_State* luaSt) {
   const P p(World::mobs[0]->getPos());
-  lua_pushnumber(luaState, p.x);
-  lua_pushnumber(luaState, p.y);
+  lua_pushnumber(luaSt, p.x);
+  lua_pushnumber(luaSt, p.y);
   return 2;
 }
 
-static int get_rbt_energy(lua_State* luaState) {
+static int is_rbt_at(lua_State* luaSt) {
+  const P pRbt(World::mobs[0]->getPos());
+  const P pArg(lua_tointeger(luaSt, 1), lua_tointeger(luaSt, 2));
+  return pRbt == pArg;
+}
+
+static int get_rbt_energy(lua_State* luaSt) {
   const Rbt* const rbt = static_cast<const Rbt*>(World::mobs[0]);
-  lua_pushnumber(luaState, rbt->getEnergyCur());
+  lua_pushnumber(luaSt, rbt->getEnergyCur());
   return 1;
 }
 
-static int get_rbt_energy_max(lua_State* luaState) {
+static int get_rbt_energy_max(lua_State* luaSt) {
   const Rbt* const rbt = static_cast<const Rbt*>(World::mobs[0]);
-  lua_pushnumber(luaState, rbt->getEnergyMax());
+  lua_pushnumber(luaSt, rbt->getEnergyMax());
   return 1;
 }
 
-static int get_rbt_energy_percent(lua_State* luaState) {
+static int get_rbt_energy_percent(lua_State* luaSt) {
   const Rbt* const rbt = static_cast<const Rbt*>(World::mobs[0]);
-  lua_pushnumber(luaState, (100 * rbt->getEnergyCur()) / rbt->getEnergyMax());
+  lua_pushnumber(luaSt, (100 * rbt->getEnergyCur()) / rbt->getEnergyMax());
   return 1;
 }
 
-static int get_nearest_recharge_station(lua_State* luaState) {
+static int get_nearest_recharge_station(lua_State* luaSt) {
   bool blocked[MAP_W][MAP_H];
   for(int y = 0; y < MAP_H; ++y) {
     for(int x = 0; x < MAP_W; ++x) {
@@ -137,21 +153,28 @@ static int get_nearest_recharge_station(lua_State* luaState) {
     }
   }
 
-  lua_pushnumber(luaState, ret.x);
-  lua_pushnumber(luaState, ret.y);
+  lua_pushnumber(luaSt, ret.x);
+  lua_pushnumber(luaSt, ret.y);
 
   return 2;
 }
 
 //----------------------------------------------- Lua functions called from C++
-static void luaAct(lua_State* luaState) {
-  lua_getglobal(luaState, "act");
-  lua_pcall(luaState, 0, 0, 0);
+static void luaAct(lua_State* luaSt) {
+  lua_getglobal(luaSt, "act");
+  lua_pcall(luaSt, 0, 0, 0);
 }
 
-static void luaInf(lua_State* luaState) {
-  lua_getglobal(luaState, "display_info");
-  lua_pcall(luaState, 0, 1, 0);
+static void luaInf(lua_State* luaSt) {
+  lua_getglobal(luaSt, "display_info");
+  lua_pcall(luaSt, 0, 1, 0);
+}
+
+//----------------------------------------------- Asdf
+static int asdf(void* data) {
+  assert(data);
+  luaAct(static_cast<lua_State*>(data));
+  return 0;
 }
 
 #ifdef _WIN32
@@ -163,27 +186,28 @@ int main(int argc, char* argv[]) {
 
   TRACE_FUNC_BEGIN;
 
-  lua_State* luaState = nullptr; //The Lua interpreter
+  lua_State* luaSt = nullptr; //The Lua interpreter
 
-  Init::initIO(luaState);
-
-  lua_register(luaState, "wait",                          wait);
-  lua_register(luaState, "move_to",                       move_to);
-  lua_register(luaState, "build",                         build);
-  lua_register(luaState, "build_road",                    build_road);
-  lua_register(luaState, "get_tick_nr",                   get_tick_nr);
-  lua_register(luaState, "get_rbt_pos",                   get_rbt_pos);
-  lua_register(luaState, "get_rbt_energy",                get_rbt_energy);
-  lua_register(luaState, "get_rbt_energy_max",            get_rbt_energy_max);
-  lua_register(luaState, "get_rbt_energy_percent",        get_rbt_energy_percent);
-  lua_register(luaState, "get_nearest_recharge_station",  get_nearest_recharge_station);
+  Init::initIO();
 
   Init::initGame();
 
   bool quitGame = false;
   while(!quitGame) {
 
-    Init::initSession();
+    Init::initSession(luaSt);
+
+    lua_register(luaSt, "wait",                          wait);
+    lua_register(luaSt, "step_towards",                  step_towards);
+    lua_register(luaSt, "build",                         build);
+    lua_register(luaSt, "build_road_to",                 build_road_to);
+    lua_register(luaSt, "get_tick_nr",                   get_tick_nr);
+    lua_register(luaSt, "get_rbt_pos",                   get_rbt_pos);
+    lua_register(luaSt, "is_rbt_at",                     is_rbt_at);
+    lua_register(luaSt, "get_rbt_energy",                get_rbt_energy);
+    lua_register(luaSt, "get_rbt_energy_max",            get_rbt_energy_max);
+    lua_register(luaSt, "get_rbt_energy_percent",        get_rbt_energy_percent);
+    lua_register(luaSt, "get_nearest_recharge_station",  get_nearest_recharge_station);
 
     World::mobs.push_back(new Rbt(P(MAP_W_HALF - 1, MAP_H_HALF - 1)));
 
@@ -191,10 +215,10 @@ int main(int argc, char* argv[]) {
     World::replaceRigid(new RockWall(), P(10, 11));
     World::replaceRigid(new RockWall(), P(11, 10));
 
-    const Uint32 MS_PER_TICK = 60;
+    const Uint32 MS_PER_TICK = 100;
     Uint32 msLast = 0;
 
-    luaL_dofile(luaState, "../../script/rbt.lua"); //Run the script
+    SDL_Thread* thread1 = SDL_CreateThread(asdf, "t1", luaSt);
 
     bool quitSession = false;
     while(!quitSession && !quitGame) {
@@ -208,13 +232,11 @@ int main(int argc, char* argv[]) {
 
         Time::tick();
 
-        luaAct(luaState);
-
         Rendering::drawMap();
 
-        luaInf(luaState);
-        const string str = lua_tostring(luaState, -1);
-        lua_pop(luaState, 1);
+        luaInf(luaSt);
+        const string str = lua_tostring(luaSt, -1);
+        lua_pop(luaSt, 1);
         if(!str.empty()) {Rendering::drawText(str, P(0, 0), clrWhiteHigh, clrBlack);}
       }
       Rendering::renderPresent();
@@ -224,11 +246,13 @@ int main(int argc, char* argv[]) {
       SdlHandling::sleep(1);
     }
 
-    Init::cleanupSession();
+    SDL_WaitThread(thread1, nullptr);
+
+    Init::cleanupSession(luaSt);
   }
 
   Init::cleanupGame();
-  Init::cleanupIO(luaState);
+  Init::cleanupIO();
 
   TRACE_FUNC_END;
   return 0;

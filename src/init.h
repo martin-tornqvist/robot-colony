@@ -68,14 +68,14 @@ namespace Init {
 extern bool isCheatVisionEnabled;
 extern bool quitToMainMenu;
 
-void initIO(lua_State*& luaState);
-void cleanupIO(lua_State*& luaState);
+void initIO();
+void cleanupIO();
 
 void initGame();
 void cleanupGame();
 
-void initSession();
-void cleanupSession();
+void initSession(lua_State*& luaState);
+void cleanupSession(lua_State*& luaState);
 
 } //Init
 

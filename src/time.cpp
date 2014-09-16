@@ -21,11 +21,12 @@ void tick() {
     }
   }
 
-  //Allow mobs to act again
-  for(Mob* mob : World::mobs) {
-    mob->hasActed_ = false;
-    mob->onTick();
-  }
+  auto&       mobs  = World::mobs;
+  auto* const rbt   = mobs[0];
+
+  rbt->onTick();                                                //Tick robot
+  while(!rbt->hasActed_) {}                                     //Wait for robot to act
+  for(size_t i = 1; i < mobs.size(); ++i) {mobs[i]->onTick();}  //Tick other mobs
 }
 
 int getTickNr() {

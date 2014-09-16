@@ -112,7 +112,7 @@ public:
 
 protected:
   GlyphAndClr getGlyphAndClr_() const override {
-    return GlyphAndClr('#', clrGray, clrBlack);
+    return GlyphAndClr('.', clrGray, clrBlack);
   }
 
   int getNrTicksToBuild() const override {return 10;}
@@ -134,9 +134,14 @@ public:
     (void)p;
   }
 
-  bool hasActed_ = false;
+  void onTick() override final;
+
+  bool  hasActed_       = false;
+  int   nrTicksToSkip_  = 0;
 
 protected:
+  virtual void onTick_() {}
+
   virtual bool canStep() const {return true;}
   virtual void onStepped() {}
 
@@ -152,14 +157,14 @@ public:
 
   EntType getEntType() const override {return EntType::rbt;}
 
-  void onTick();
-
   void tryBuild(const AsmType assemblyType, const P& p) override;
 
   int getEnergyCur() const {return energyCur_;}
   int getEnergyMax() const {return energyMax_;}
 
 private:
+  void onTick_();
+
   bool canStep() const override;
 
   void onStepped() override;

@@ -9,34 +9,7 @@ function display_info()
     "   Tick: " .. t
 end
 
-recharging = false
-
 function act()
-  build("", 50, 20)
-  
-  energy         = get_rbt_energy()
-  energy_percent = get_rbt_energy_percent();
-  
-  recharge_x, recharge_y = get_nearest_recharge_station();
-  
-  if energy_percent <= 50 then
-    move_to(recharge_x, recharge_y)
-    wait()
-    recharging = true
-  end
-  
-  if energy_percent == 100 then
-    recharging = false
-  end
-  
-  if recharging == false then
-    build("", 40, 20)
-    build_road(50, 20, 40, 20)
-    build("", 50, 10)
-    build("", 30, 20)
-    build("", 50, 2)
-    build("", 20, 20)
-    build("", 5, 5)
-  end
-  
+  repeat step_towards(40, 10) until is_rbt_at(40, 10) 
+  repeat step_towards(42, 10) until is_rbt_at(40, 10) 
 end

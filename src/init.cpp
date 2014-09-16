@@ -12,29 +12,24 @@ using namespace std;
 namespace Init {
 
 //Note: Initialization order matters in some cases
-void initIO(lua_State*& luaState) {
+void initIO() {
   TRACE_FUNC_BEGIN;
   SdlHandling::init();
 //  Config::init();
   Input::init();
   Rendering::init();
-  luaState = luaL_newstate(); //initialize Lua
-  luaL_openlibs(luaState);    //Load Lua base libraries
 //  Audio::init();
   TRACE_FUNC_END;
 }
 
-void cleanupIO(lua_State*& luaState) {
+void cleanupIO() {
   TRACE_FUNC_BEGIN;
 //  Audio::cleanup();
-  lua_close(luaState); //Cleanup Lua
-  luaState = nullptr;
   Rendering::cleanup();
   SdlHandling::cleanup();
   TRACE_FUNC_END;
 }
 
-//Note: Initialization order matters in some cases
 void initGame() {
   TRACE_FUNC_BEGIN;
 
@@ -47,15 +42,19 @@ void cleanupGame() {
   TRACE_FUNC_END;
 }
 
-//Note: Initialization order matters in some cases
-void initSession() {
+void initSession(lua_State*& luaState) {
   TRACE_FUNC_BEGIN;
   World::init();
+  luaState = luaL_newstate(); //initialize Lua
+  luaL_openlibs(luaState);    //Load Lua base libraries
+  luaL_dofile(luaState, "../../script/rbt.lua"); //Run the script
   TRACE_FUNC_END;
 }
 
-void cleanupSession() {
+void cleanupSession(lua_State*& luaState) {
   TRACE_FUNC_BEGIN;
+  lua_close(luaState); //Cleanup Lua
+  luaState = nullptr;
   World::cleanup();
   TRACE_FUNC_END;
 }
