@@ -72,7 +72,7 @@ public:
 
   void tickBuild();
 
-  bool isFinished() const {return ticksBuilt_ >= getNrTicksToBuild();}
+  bool isDone() const {return ticksBuilt_ >= getNrTicksToBuild();}
 
   GlyphAndClr getGlyphAndClr() const override final;
 

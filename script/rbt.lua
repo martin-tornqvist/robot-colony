@@ -1,8 +1,8 @@
 function display_info()
-  x, y = get_rbt_pos()
-  t = get_tick_nr()
-  energy = get_rbt_energy()
-  energy_max = get_rbt_energy_max()
+  local x, y = get_rbt_pos()
+  local t = get_tick_nr()
+  local energy = get_rbt_energy()
+  local energy_max = get_rbt_energy_max()
   return
     "Pos: " .. x .. ", " .. y ..
     "   Energy: " .. energy .. "/" .. energy_max ..
@@ -10,6 +10,23 @@ function display_info()
 end
 
 function act()
-  repeat step_towards(40, 10) until is_rbt_at(40, 10) 
-  repeat step_towards(42, 10) until is_rbt_at(40, 10) 
+  local x, y = get_rbt_pos()
+
+  repeat build("", x + 1, y) until
+    is_assembly_done_at("", x + 1, y)
+
+  repeat step_towards(x + 1, y) until
+    is_rbt_at(x + 1, y)
+   
+  repeat wait() until
+    get_rbt_energy_percent() == 100
+   
+  repeat step_towards(1, 1) until
+    get_rbt_energy_percent() < 60
+   
+  repeat step_towards(x + 1, y) until
+    is_rbt_at(x + 1, y)
+   
+  repeat wait() until
+    get_rbt_energy_percent() == 100
 end

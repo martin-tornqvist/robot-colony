@@ -54,11 +54,11 @@ void Asm::tickBuild() {
 
 GlyphAndClr Asm::getGlyphAndClr() const {
   const auto def = getGlyphAndClr_();
-  if(isFinished()) {
+  if(isDone()) {
     return def;
   } else {
     //"Animation"
-    if(!isBeingBuiltThisTick_ || Time::getTickNr() % 2) {
+    if(!isBeingBuiltThisTick_ || (World::getTickNr() % 2) == 0) {
       return GlyphAndClr('%', def.clr, def.clrBg);
     } else {
       return GlyphAndClr('%', def.clrBg, def.clr);
@@ -78,7 +78,7 @@ void Rbt::onTick_() {
   if(rigidHere->getEntType() == EntType::assembly) {
     const auto* const assemblyHere     = static_cast<const Asm*>(rigidHere);
     const auto        assemblyTypeHere = assemblyHere->getAsmType();
-    if(assemblyTypeHere == AsmType::rechargeStation && assemblyHere->isFinished()) {
+    if(assemblyTypeHere == AsmType::rechargeStation && assemblyHere->isDone()) {
       if(energyCur_ < energyMax_) {
         energyCur_ = min(energyMax_, energyCur_ + 100);
       }
@@ -101,7 +101,7 @@ void Rbt::onStepped() {
   if(entTypeHere == EntType::assembly) {
     auto* const assemblyHere     = static_cast<Asm*>(rigidHere);
     const auto  assemblyTypeHere = assemblyHere->getAsmType();
-    isRoad = assemblyTypeHere == AsmType::road && assemblyHere->isFinished();
+    isRoad = assemblyTypeHere == AsmType::road && assemblyHere->isDone();
   }
 
   if(!isRoad) {
@@ -122,7 +122,7 @@ void Rbt::tryBuild(const AsmType assemblyType, const P& p) {
       const auto  assemblyTypeHere = assemblyHere->getAsmType();
       if(assemblyTypeHere == assemblyType) {
         buildNew = false;
-        if(!assemblyHere->isFinished()) {
+        if(!assemblyHere->isDone()) {
           if(IS_ADJ) {
             hasActed_ = true;
             energyCur_ -= 20;

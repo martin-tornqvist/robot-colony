@@ -1,6 +1,7 @@
 #include "Init.h"
 
 #include <iostream>
+#include <setjmp.h>
 
 #include "sdlHandling.h"
 #include "rendering.h"
@@ -42,19 +43,23 @@ void cleanupGame() {
   TRACE_FUNC_END;
 }
 
-void initSession(lua_State*& luaState) {
+void initSession(lua_State*& luaSt) {
   TRACE_FUNC_BEGIN;
   World::init();
-  luaState = luaL_newstate(); //initialize Lua
-  luaL_openlibs(luaState);    //Load Lua base libraries
-  luaL_dofile(luaState, "../../script/rbt.lua"); //Run the script
+  luaSt = luaL_newstate(); //Init Lua
+  luaL_openlibs(luaSt);    //Load Lua base libraries
+#ifdef NDEBUG
+  luaL_dofile(luaSt, "rbt.lua");
+#else
+  luaL_dofile(luaSt, "../../script/rbt.lua");
+#endif
   TRACE_FUNC_END;
 }
 
-void cleanupSession(lua_State*& luaState) {
+void cleanupSession(lua_State*& luaSt) {
   TRACE_FUNC_BEGIN;
-  lua_close(luaState); //Cleanup Lua
-  luaState = nullptr;
+  lua_close(luaSt);
+  luaSt = nullptr;
   World::cleanup();
   TRACE_FUNC_END;
 }

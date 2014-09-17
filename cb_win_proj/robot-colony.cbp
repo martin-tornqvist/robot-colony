@@ -13,6 +13,7 @@
 				<Option object_output="../obj/debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
 				<Compiler>
 					<Add option="-g" />
 					<Add directory="../src/debugModeIncl" />
@@ -35,12 +36,8 @@
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-O2" />
 					<Add directory="../src/releaseModeIncl" />
 				</Compiler>
-				<Linker>
-					<Add option="-s" />
-				</Linker>
 				<ExtraCommands>
 					<Add after='cmd /c xcopy /e /y &quot;$(PROJECT_DIR)..\assets\*&quot; &quot;$(PROJECT_DIR)..\target\release\&quot;' />
 					<Add after='cmd /c xcopy /y &quot;$(PROJECT_DIR)..\SDL2\SDL2.dll&quot; &quot;$(PROJECT_DIR)..\target\release\&quot;' />
@@ -95,8 +92,6 @@
 		<Unit filename="../src/rendering.h" />
 		<Unit filename="../src/sdlHandling.cpp" />
 		<Unit filename="../src/sdlHandling.h" />
-		<Unit filename="../src/time.cpp" />
-		<Unit filename="../src/time.h" />
 		<Unit filename="../src/utils.cpp" />
 		<Unit filename="../src/utils.h" />
 		<Unit filename="../src/world.cpp" />

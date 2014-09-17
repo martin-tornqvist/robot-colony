@@ -7,8 +7,8 @@ const std::string gameVersionStr = "v0.01";
 
 const int SCR_BPP = 32;
 
-const int MAP_W       = 100;
-const int MAP_H       = 40;
+const int MAP_W       = 80;
+const int MAP_H       = 24;
 const int MAP_W_HALF  = MAP_W / 2;
 const int MAP_H_HALF  = MAP_H / 2;
 

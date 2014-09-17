@@ -74,8 +74,8 @@ void cleanupIO();
 void initGame();
 void cleanupGame();
 
-void initSession(lua_State*& luaState);
-void cleanupSession(lua_State*& luaState);
+void initSession(lua_State*& luaSt);
+void cleanupSession(lua_State*& luaSt);
 
 } //Init
 

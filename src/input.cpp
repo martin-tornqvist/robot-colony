@@ -21,7 +21,7 @@ void init() {
   isInited_ = true;
 }
 
-void read(bool& quitGame, bool& quitSession) {
+void read(bool& quitGame) {
   if(isInited_) {
     while(SDL_PollEvent(&sdlEvent_) != 0) {
 
@@ -29,7 +29,7 @@ void read(bool& quitGame, bool& quitSession) {
 
       if(sdlEvent_.type == SDL_KEYDOWN) {
         switch(sdlEvent_.key.keysym.sym) {
-          case 'z': {quitSession = true;} break;
+          case SDLK_ESCAPE: {quitGame = true;}
 
           default: {} break;
         }

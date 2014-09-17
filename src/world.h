@@ -19,6 +19,10 @@ void init();
 
 void cleanup();
 
+int getTickNr();
+
+void incrTickNr();
+
 Rigid* replaceRigid(Rigid* const newRigid, const P& p);
 
 }
