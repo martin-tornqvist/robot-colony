@@ -20,21 +20,21 @@ using namespace std;
 //Waits for the robot to be ready to act
 static void waitToProceed() {
   const auto* const rbt = World::mobs[0];
-  while(rbt->hasActed_ || rbt->nrTicksToSkip_ > 0) {}
+  while(rbt->hasTriedAct_ || rbt->nrTicksToSkip_ > 0) {}
 }
 
 //----------------------------------------------- C++ functions called from Lua
 static int wait(lua_State* luaSt) {
   (void)luaSt;
   waitToProceed();
-  World::mobs[0]->hasActed_ = true;
+  World::mobs[0]->hasTriedAct_ = true;
   return 0;
 }
 
-static int step_towards(lua_State* luaSt) {
+static int go_towards(lua_State* luaSt) {
   waitToProceed();
   const P p(lua_tointeger(luaSt, 1), lua_tointeger(luaSt, 2));
-  World::mobs[0]->tryStepTowards(p);
+  World::mobs[0]->tryGoTowards(p);
   return 0;
 }
 
@@ -220,18 +220,18 @@ int main(int argc, char* argv[]) {
   Init::initGame();
   Init::initSession(luaSt);
 
-  lua_register(luaSt, "wait",                          wait);
-  lua_register(luaSt, "step_towards",                  step_towards);
-  lua_register(luaSt, "build",                         build);
-  lua_register(luaSt, "build_road_to",                 build_road_to);
-  lua_register(luaSt, "get_tick_nr",                   get_tick_nr);
-  lua_register(luaSt, "get_rbt_pos",                   get_rbt_pos);
-  lua_register(luaSt, "is_rbt_at",                     is_rbt_at);
-  lua_register(luaSt, "is_assembly_done_at",           is_assembly_done_at);
-  lua_register(luaSt, "get_rbt_energy",                get_rbt_energy);
-  lua_register(luaSt, "get_rbt_energy_max",            get_rbt_energy_max);
-  lua_register(luaSt, "get_rbt_energy_percent",        get_rbt_energy_percent);
-  lua_register(luaSt, "get_nearest_recharge_station",  get_nearest_recharge_station);
+  lua_register(luaSt, "wait",                           wait);
+  lua_register(luaSt, "go_towards",                     go_towards);
+  lua_register(luaSt, "build",                          build);
+  lua_register(luaSt, "build_road_to",                  build_road_to);
+  lua_register(luaSt, "get_tick_nr",                    get_tick_nr);
+  lua_register(luaSt, "get_rbt_pos",                    get_rbt_pos);
+  lua_register(luaSt, "is_rbt_at",                      is_rbt_at);
+  lua_register(luaSt, "is_assembly_done_at",            is_assembly_done_at);
+  lua_register(luaSt, "get_rbt_energy",                 get_rbt_energy);
+  lua_register(luaSt, "get_rbt_energy_max",             get_rbt_energy_max);
+  lua_register(luaSt, "get_rbt_energy_percent",         get_rbt_energy_percent);
+  lua_register(luaSt, "get_nearest_recharge_station",   get_nearest_recharge_station);
 
   World::mobs.push_back(new Rbt(P(MAP_W_HALF - 1, MAP_H_HALF - 1)));
 
@@ -239,10 +239,11 @@ int main(int argc, char* argv[]) {
   World::replaceRigid(new RockWall(), P(10, 11));
   World::replaceRigid(new RockWall(), P(11, 10));
 
-  const Uint32 MS_PER_TICK = 1;
+  const Uint32 MS_PER_TICK = 50;
   Uint32 msLast = 0;
 
-  SDL_Thread* thread1 = SDL_CreateThread(luaActCalledFromThread, nullptr, luaSt);
+  //SDL_Thread* thread1 = SDL_CreateThread(luaActCalledFromThread, nullptr, luaSt);
+  SDL_CreateThread(luaActCalledFromThread, nullptr, luaSt);
 
   bool quitGame = false;
 
@@ -266,8 +267,8 @@ int main(int argc, char* argv[]) {
       auto&       mobs  = World::mobs;
       auto* const rbt   = mobs[0];
 
-      rbt->onTick();                          //Tick robot
-      while(!rbt->hasActed_ && !isLuaDone) {} //Wait for robot to act or script to end
+      rbt->onTick();                              //Tick robot
+      while(!rbt->hasTriedAct_ && !isLuaDone) {}  //Wait for robot act (or script end)
       for(size_t i = 1; i < mobs.size(); ++i) {mobs[i]->onTick();} //Tick other mobs
 
       Rendering::drawMap();

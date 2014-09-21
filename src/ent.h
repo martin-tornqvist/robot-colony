@@ -127,7 +127,7 @@ public:
 
   P getPos() const {return p_;}
 
-  void tryStepTowards(const P& p);
+  void tryGoTowards(const P& p);
 
   virtual void tryBuild(const AsmType assemblyType, const P& p) {
     (void)assemblyType;
@@ -136,16 +136,22 @@ public:
 
   void onTick() override final;
 
-  bool  hasActed_       = false;
+  bool  hasTriedAct_    = false;
   int   nrTicksToSkip_  = 0;
 
 protected:
   virtual void onTick_() {}
 
-  virtual bool canStep() const {return true;}
-  virtual void onStepped() {}
+  virtual bool canGo() const {return true;}
+  virtual void onDidGo() {}
 
   P p_;
+};
+
+enum class RbtActionCosts : int {
+  go  = 20,
+  build = 20,
+  END
 };
 
 class Rbt : public Mob {
@@ -165,11 +171,11 @@ public:
 private:
   void onTick_();
 
-  bool canStep() const override;
+  bool canGo() const override;
 
-  void onStepped() override;
+  void onDidGo() override;
 
-  int energyMax_ = 800;
+  int energyMax_ = 2000;
   int energyCur_ = energyMax_;
 };
 

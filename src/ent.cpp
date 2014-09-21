@@ -9,8 +9,8 @@
 using namespace std;
 
 //------------------------------------------------------------------- MOBILE
-void Mob::tryStepTowards(const P& p) {
-  if(!hasActed_ && p != p_ && Utils::isPosInMap(p, true) && canStep()) {
+void Mob::tryGoTowards(const P& p) {
+  if(!hasTriedAct_ && p != p_ && Utils::isPosInMap(p, true) && canGo()) {
 
     bool blocked[MAP_W][MAP_H];
 
@@ -26,19 +26,19 @@ void Mob::tryStepTowards(const P& p) {
 
     if(!path.empty()) {
       p_ = path.back();
-      onStepped();
+      onDidGo();
     }
   }
 
-  hasActed_ = true;
+  hasTriedAct_ = true;
 }
 
 void Mob::onTick() {
   if(nrTicksToSkip_ <= 0) {
-    hasActed_ = false;
+    hasTriedAct_ = false;
     onTick_();
   } else {
-    hasActed_ = true;
+    hasTriedAct_ = true;
   }
 
   nrTicksToSkip_  = max(0, nrTicksToSkip_ - 1);
@@ -74,24 +74,24 @@ GlyphAndClr Rbt::getGlyphAndClr() const {
 }
 
 void Rbt::onTick_() {
+  energyCur_ = min(energyMax_, energyCur_ + 1);
+
   auto* rigidHere = World::rigids[p_.x][p_.y];
   if(rigidHere->getEntType() == EntType::assembly) {
     const auto* const assemblyHere     = static_cast<const Asm*>(rigidHere);
     const auto        assemblyTypeHere = assemblyHere->getAsmType();
     if(assemblyTypeHere == AsmType::rechargeStation && assemblyHere->isDone()) {
-      if(energyCur_ < energyMax_) {
-        energyCur_ = min(energyMax_, energyCur_ + 100);
-      }
+      energyCur_ = min(energyMax_, energyCur_ + 100);
     }
   }
 }
 
-bool Rbt::canStep() const {
-  return energyCur_ > 0;
+bool Rbt::canGo() const {
+  return energyCur_ >= static_cast<int>(RbtActionCosts::go);
 }
 
-void Rbt::onStepped() {
-  energyCur_ -= 20;
+void Rbt::onDidGo() {
+  energyCur_ -= static_cast<int>(RbtActionCosts::go);
 
   auto* const rigidHere   = World::rigids[p_.x][p_.y];
   const auto  entTypeHere = rigidHere->getEntType();
@@ -104,13 +104,11 @@ void Rbt::onStepped() {
     isRoad = assemblyTypeHere == AsmType::road && assemblyHere->isDone();
   }
 
-  if(!isRoad) {
-    nrTicksToSkip_ = 1;
-  }
+  if(!isRoad) {nrTicksToSkip_ = 1;}
 }
 
 void Rbt::tryBuild(const AsmType assemblyType, const P& p) {
-  if(!hasActed_) {
+  if(!hasTriedAct_ && energyCur_ >= static_cast<int>(RbtActionCosts::build)) {
     auto* const rigidHere   = World::rigids[p.x][p.y];
     const auto  entTypeHere = rigidHere->getEntType();
     const bool  IS_ADJ      = Utils::isPosAdj(p_, p, true);
@@ -124,11 +122,10 @@ void Rbt::tryBuild(const AsmType assemblyType, const P& p) {
         buildNew = false;
         if(!assemblyHere->isDone()) {
           if(IS_ADJ) {
-            hasActed_ = true;
-            energyCur_ -= 20;
+            energyCur_ -= static_cast<int>(RbtActionCosts::build);
             assemblyHere->tickBuild();
           } else {
-            tryStepTowards(p);
+            tryGoTowards(p);
           }
         }
       }
@@ -136,8 +133,7 @@ void Rbt::tryBuild(const AsmType assemblyType, const P& p) {
 
     if(buildNew) {
       if(IS_ADJ) {
-        hasActed_ = true;
-        energyCur_ -= 20;
+        energyCur_ -= static_cast<int>(RbtActionCosts::build);
 
         Rigid* newRigid = nullptr;
         switch(assemblyType) {
@@ -155,8 +151,9 @@ void Rbt::tryBuild(const AsmType assemblyType, const P& p) {
         auto* const assembly = static_cast<Asm*>(newRigid);
         assembly->tickBuild();
       } else {
-        tryStepTowards(p);
+        tryGoTowards(p);
       }
     }
   }
+  hasTriedAct_ = true;
 }
